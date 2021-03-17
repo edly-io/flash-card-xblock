@@ -5,6 +5,8 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import Integer, Scope
 
+from pakx_flashcard.utils import (render_template, resource_string)
+
 
 class PakXFlashcardXBlock(XBlock):
     """
@@ -14,7 +16,9 @@ class PakXFlashcardXBlock(XBlock):
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
 
-    # TO-DO: delete count, and define your own fields.
+    has_score = True
+    icon_class = 'problem'
+
     count = Integer(
         default=0, scope=Scope.user_state,
         help="A simple counter, to show something happening",
@@ -25,18 +29,42 @@ class PakXFlashcardXBlock(XBlock):
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
+    @XBlock.json_handler
+    def submit_grade(self, data, suffix=''):
+        """
+        Publish data for analytics purposes
+        """
+        data['max_value'] = 1.0
+
+        self.runtime.publish(self, "grade", data)
+        return {'result': 'success'}
+
     # TO-DO: change this view to display your data your own way.
     def student_view(self, context=None):
         """
         The primary view of the PakXFlashcardXBlock, shown to students
         when viewing courses.
         """
-        html = self.resource_string("static/html/pakx_flashcard.html")
-        frag = Fragment(html.format(self=self))
-        frag.add_css(self.resource_string("static/css/pakx_flashcard.css"))
-        frag.add_javascript(self.resource_string("static/js/src/pakx_flashcard.js"))
-        frag.initialize_js('PakXFlashcardXBlock')
-        return frag
+
+        fragment = Fragment()
+        html = render_template("static/html/pakx_flashcard.html", {'self': self})
+        fragment.add_content(html)
+        fragment.add_css(resource_string("static/css/pakx_flashcard.css"))
+        fragment.add_javascript(resource_string("static/js/src/pakx_flashcard.js"))
+        fragment.initialize_js('PakXFlashcardXBlock')
+        return fragment
+
+    def studio_view(self, context):
+        """
+        Studio edit view
+        """
+
+        fragment = Fragment()
+        fragment.add_content(render_template('static/html/pakx_flashcard_edit.html', {'self': self}))
+        fragment.add_javascript(resource_string("static/js/src/pakx_flashcard.js"))
+        fragment.initialize_js('PakXFlashcardEditXBlock')
+
+        return fragment
 
     # TO-DO: change this handler to perform your own actions.  You may need more
     # than one handler, or you may not need any handlers at all.
