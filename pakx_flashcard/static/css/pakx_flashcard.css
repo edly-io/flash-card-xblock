@@ -1,9 +1,92 @@
 /* CSS for PakXFlashcardXBlock */
 
-.pakx_flashcard_block .count {
-    font-weight: bold;
+.flashcard_wrapper {
+    display: flex;
+    max-width: 990px;
+    margin: 20px auto;
+    justify-content: center;
+    flex-wrap: wrap;
 }
-
-.pakx_flashcard_block p {
+.flip .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 1s;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    margin: 0 auto;
+    min-width: 280px;
+    max-width: 460px;
+    min-height: 280px;
+    max-height: 460px;
+    transform: scale(.9) translateZ(0);
     cursor: pointer;
+    background: #fff;
+    box-shadow: 0 0.4rem 1.2rem 0.2rem rgb(0 0 0 / 5%);
+    border: 1px solid #ddd;
+}
+.flip.small .card {
+    max-width: 280px;
+    max-height: 280px;
+}
+.flip.medium .card {
+    min-width: 400px;
+    min-height: 400px;
+}
+.card div {
+    display: block;
+    height: 100%;
+    width: 100%;
+    color: #000;
+    text-align: center;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: hidden;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.card .front:after,
+.card .back:after {
+    content: '\f021';
+    font-family: 'FontAwesome';
+    border: none;
+    bottom: 12px;
+    color: #707070;
+    cursor: pointer;
+    font-size: 17px;
+    line-height: 1;
+    position: absolute;
+    right: 12px;
+    transform: scale(1) translateZ(0);
+}
+.card div img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+.card div h1 {
+    margin: 0 0 15px;
+    font-size: 18px;
+}
+.card div p { margin: 0; }
+.card .front {
+  background: #fff;
+  border-top: 3px solid #5696A1;
+}
+.card .back {
+    background: #fafafa;
+    transform: rotateY( 180deg );
+}
+.card.flipped {
+    transform: rotateY( 180deg );
+}
+.card .front div,
+.card .back div {
+    padding: 0 30px;
+    box-sizing: border-box;
+    position: static;
+    height: calc(100% - 50px);
 }

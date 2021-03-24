@@ -18,5 +18,9 @@ function PakXFlashcardXBlock(runtime, element) {
 
     $(function ($) {
         /* Here's where you'd do things on page load. */
+
+        $('.flip').click(function(){
+            $(this).find('.card').toggleClass('flipped');
+        });
     });
 }
