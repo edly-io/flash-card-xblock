@@ -10,30 +10,38 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
     }
 
     _PakXFlashcardEditXBlock.SELECTOR = {
-        INPUT_TEMPLATE: 'script[type="text/html"][data-name="input-template"]',
-        TWO_IMAGE_TEMPLATE: 'script[type="text/html"][data-name="random-id"]',
-        INPUT_LIST: USAGE_ID + '-ul',
-        ADD_SLIDE_BUTTON: '.add-slide-button',
-        EDIT_FORM: USAGE_ID + '-form',
-        CANCEL_BUTTON: '.cancel-button',
-        TITLE_ID: '#edit_display_name',
         TWO_IMAGE: '.two-images',
+        DELETE_BUTTON: '.del-button',
+        INPUT_LIST: USAGE_ID + '-ul',
+        EDIT_FORM: USAGE_ID + '-form',
+        TITLE_ID: '#edit_display_name',
         IMAGE_PARA: '.image-paragraph',
         PARA_IMAGE: '.paragraph-image',
+        CANCEL_BUTTON: '.cancel-button',
         TWO_PARAGRAPHS: '.two-paragraph',
-        DELETE_BUTTON: '.del-button',
         ACTION_BUTTONS: '.action-buttons',
         TEXT_AREA: 'textarea[name="editor"]',
+        ADD_SLIDE_BUTTON: '.add-slide-button',
+        INPUT_TEMPLATE: 'script[type="text/html"][data-name="input-template"]',
+        TWO_IMAGE_TEMPLATE: 'script[type="text/html"][data-name="images-script"]',
+        TWO_PARA_TEMPLATE: 'script[type="text/html"][data-name="two-para-script"]',
+        PARA_IMAGE_TEMPLATE: 'script[type="text/html"][data-name="para-image-script"]',
+        IMAGE_PARA_TEMPLATE: 'script[type="text/html"][data-name="image-para-script"]',
     }
 
     _PakXFlashcardEditXBlock.VIEW = {
+        TITLE_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.TITLE_ID, element),
         CANCEL_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.CANCEL_BUTTON, element),
         INPUT_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.INPUT_TEMPLATE, element),
-        TWO_IMAGE_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.TWO_IMAGE_TEMPLATE, element),
-        TITLE_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.TITLE_ID, element),
         ADD_SLIDE_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.ADD_SLIDE_BUTTON, element),
         EDIT_FORM: $(document.getElementById(_PakXFlashcardEditXBlock.SELECTOR.EDIT_FORM)),
+        TWO_PARA_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.TWO_PARA_TEMPLATE, element),
+        TWO_IMAGE_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.TWO_IMAGE_TEMPLATE, element),
         INPUT_LIST: $(document.getElementById(_PakXFlashcardEditXBlock.SELECTOR.INPUT_LIST)),
+        PARA_IMAGE_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.PARA_IMAGE_TEMPLATE, element),
+        IMAGE_PARA_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.IMAGE_PARA_TEMPLATE, element),
+
+
     }
 
     $(function () {
@@ -68,59 +76,26 @@ PakXFlashcardEditXBlock.prototype.changeButtonStatus = function(param, target) {
 
 PakXFlashcardEditXBlock.prototype.addImageParagraph = function(param, target) {
     _PakXFlashcardEditXBlock = target;
-    let htmlCode = `
-<div class="flip">
-    <div class="card">
-        <div class="front"><div>Flip Card Image Flip Card Image</div></div>
-        <div class="back"><div><img src="http://placehold.it/100x100" alt=""></div></div>
-    </div>
-</div>`
-    _PakXFlashcardEditXBlock.insertSnippet(param, htmlCode, target)
+    var IMAGE_PARA_TEMPLATE = $(_PakXFlashcardEditXBlock.VIEW.IMAGE_PARA_TEMPLATE).text();
+    _PakXFlashcardEditXBlock.insertSnippet(param, IMAGE_PARA_TEMPLATE, target)
 }
 
 PakXFlashcardEditXBlock.prototype.addTwoImages = function(param, target) {
     _PakXFlashcardEditXBlock = target;
-    var INPUT_TEMPLATE = $($(_PakXFlashcardEditXBlock.VIEW.TWO_IMAGE_TEMPLATE).text());
-    debugger
-
-    let htmlCode = `
-<div class="flip">
-    <div class="card">
-        <div class="front"><div><img src="http://placehold.it/100x100" alt=""></div></div>
-        <div class="back"><div><img src="http://placehold.it/100x100" alt=""></div></div>
-    </div>
-</div>`
-    _PakXFlashcardEditXBlock.insertSnippet(param, htmlCode, target)
+    var TWO_IMAGE_TEMPLATE = $(_PakXFlashcardEditXBlock.VIEW.TWO_IMAGE_TEMPLATE).text();
+    _PakXFlashcardEditXBlock.insertSnippet(param, TWO_IMAGE_TEMPLATE, target)
 }
 
 PakXFlashcardEditXBlock.prototype.addParagraphImage = function(param, target) {
     _PakXFlashcardEditXBlock = target;
-    let htmlCode = `
-<div class="flip">
-    <div class="card">
-        <div class="front"><div>Flip Card Image Flip Card Image</div></div>
-        <div class="back"><div><img src="http://placehold.it/100x100" alt=""></div></div>
-    </div>
-</div>`
-    _PakXFlashcardEditXBlock.insertSnippet(param, htmlCode, target)
+    var PARA_IMAGE_TEMPLATE = $(_PakXFlashcardEditXBlock.VIEW.PARA_IMAGE_TEMPLATE).text();
+    _PakXFlashcardEditXBlock.insertSnippet(param, PARA_IMAGE_TEMPLATE, target)
 }
 
 PakXFlashcardEditXBlock.prototype.addTwoParagraphs = function(param, target) {
     _PakXFlashcardEditXBlock = target;
-let htmlCode = `
-<div class="flip">
-    <div class="card">
-        <div class="front"><div>Flip Card Front</div></div>
-        <div class="back">
-            <div>
-                <h1>What is Lorem Ipsum?</h1>
-                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-            </div>
-        </div>
-    </div>
-</div>`
-debugger
-    _PakXFlashcardEditXBlock.insertSnippet(param, htmlCode, target)
+    var TWO_PARA_TEMPLATE = $(_PakXFlashcardEditXBlock.VIEW.TWO_PARA_TEMPLATE).text();
+    _PakXFlashcardEditXBlock.insertSnippet(param, TWO_PARA_TEMPLATE, target)
 }
 
 PakXFlashcardEditXBlock.prototype.deleteCard = function(param, target) {
