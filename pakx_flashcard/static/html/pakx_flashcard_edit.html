@@ -1,1 +1,63 @@
+<!-- TODO: Replace by default edit view once available in Studio -->
+{% with usage_id=self.scope_ids.usage_id %}
+<div class="wrapper-comp-settings is-active editor-with-buttons google-edit-wrapper" id="{{usage_id}}-document-settings-tab" data-usage-id="{{usage_id}}">
+  <script type="text/html" data-name="input-template">
+    <li class="field comp-setting-entry is-set">
+      <div class="static-buttons">
+        <span class="action-buttons hide">
+          <button class="static-buttons two-images">2 Images</button>
+          <button class="static-buttons image-paragraph">Image Paragraph</button>
+          <button class="static-buttons paragraph-image">Paragraph Image</button>
+          <button class="static-buttons two-paragraph">2 Paragraphs</button>
+        </span>
+        <button class="static-buttons del-button">Delete Card</button>
+      </div>
+      <div class="wrapper-comp-setting">
+        <span class="tip setting-help"></span>
+        <div class='codemirror-editor-wrapper'>
+          <textarea class="block-xml-editor edit-data" name="editor"></textarea>
+        </div>
+      </div>
+    </li>
+  </script>
 
+  <script type="text/html" date-name="random-id">
+    <div class="flip">
+      <div class="card">
+        <div class="front"><div><img src="https://via.placeholder.com/1000?text=Placehoder+Image" alt=""></div></div>
+        <div class="back"><div><img src="https://via.placeholder.com/1000?text=Placehoder+Image" alt=""></div></div>
+      </div>
+    </div>
+  </script>
+
+  <form id="{{usage_id}}-form"></form>
+  <div class="user-inputs-and-validation">
+    <div class="xblock-inputs editor_content_wrapper">
+      <ul class="list-input settings-list" id="{{usage_id}}-ul">
+        <li class="field comp-setting-entry is-set">
+          <div class="wrapper-comp-setting">
+            <label class="label setting-label" for="edit_display_name">Display Name</label>
+            <input class="input setting-input edit-display-name" id="edit_display_name" value="{{ self.display_name }}" type="text" data-default-value="{{self.display_name}}">
+          </div>
+          <span class="tip setting-help">This name appears in the horizontal navigation at the top of the page.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="xblock-actions">
+    <span class="xblock-editor-error-message"></span>
+    <ul>
+      <li class="action-item">
+        <button class="button action-primary add-slide-button">Add Card</button>
+      </li>
+      <li class="action-item">
+        <button form="{{usage_id}}-form" class="button action-primary save-button">Save</button>
+      </li>
+
+      <li class="action-item">
+        <button class="button cancel-button" id="cancel_button">Cancel</button>
+      </li>
+    </ul>
+  </div>
+</div>
+{% endwith %}

@@ -1,26 +1,33 @@
 /* Javascript for PakXFlashcardXBlock. */
-function PakXFlashcardXBlock(runtime, element) {
+function PakXFlashcardXBlock(runtime, element, params) {
+    var _PakXFlashcardXBlock = this;
 
-    function updateCount(result) {
-        $('.count', element).text(result.count);
+    _PakXFlashcardXBlock.URL = {
+        SUBMIT_GRADE: runtime.handlerUrl(element, 'submit_grade')
     }
 
-    var handlerUrl = runtime.handlerUrl(element, 'increment_count');
-
-    $('p', element).click(function(eventObject) {
-        $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            data: JSON.stringify({"hello": "world"}),
-            success: updateCount
-        });
-    });
+    _PakXFlashcardXBlock.SELECTOR = {
+        FLIP: '.flip',
+        CARD: '.card',
+    }
 
     $(function ($) {
         /* Here's where you'd do things on page load. */
 
-        $('.flip').click(function(){
-            $(this).find('.card').toggleClass('flipped');
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP).click(function(){
+            $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD).toggleClass('flipped');
+            _PakXFlashcardXBlock.submitGrades(1);
         });
+
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP).addClass(params.class_name)
     });
+}
+
+PakXFlashcardXBlock.prototype.submitGrades = function(grade) {
+   var _PakXFlashcardXBlock = this;
+   $.post(_PakXFlashcardXBlock.URL.SUBMIT_GRADE, JSON.stringify({'value': grade})).done(function(response) {
+      if (response.result === 'success') {
+        // FOR NOW NOTHING TO SHOW HERE
+      }
+  });
 }
