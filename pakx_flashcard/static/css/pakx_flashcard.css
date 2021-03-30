@@ -90,3 +90,11 @@
     position: static;
     height: calc(100% - 50px);
 }
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}

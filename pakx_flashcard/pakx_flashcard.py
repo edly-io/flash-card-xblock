@@ -1,33 +1,70 @@
-"""TO-DO: Write a description of what this XBlock is."""
+"""PakistanX Flashcards XBlock is used to display random number of cards to user"""
 
-import pkg_resources
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope
+from xblock.fields import Integer, Scope, String, List
 
-from pakx_flashcard.utils import (render_template, resource_string)
+from pakx_flashcard.utils import (render_template, resource_string, json_response)
 
 
 class PakXFlashcardXBlock(XBlock):
     """
-    TO-DO: document what your XBlock does.
+    PakistanX Flashcards XBlock is used to display random number of cards to user
     """
-
-    # Fields are defined on the class.  You can access them in your code as
-    # self.<fieldname>.
 
     has_score = True
     icon_class = 'problem'
 
-    count = Integer(
-        default=0, scope=Scope.user_state,
-        help="A simple counter, to show something happening",
-    )
+    display_name = String(help='This name appears in horizontal navigation at the top of the page.',
+                          default='PakistanX Flashcards',
+                          scope=Scope.content)
 
-    def resource_string(self, path):
-        """Handy helper for getting resources from our kit."""
-        data = pkg_resources.resource_string(__name__, path)
-        return data.decode("utf8")
+    cards = List(help='List of card objects', scope=Scope.content, default=[])
+
+    @XBlock.json_handler
+    def submit_grade(self, data, suffix=''):
+        """
+        Publish data for analytics purposes
+        """
+        data['max_value'] = 1.0
+
+        self.runtime.publish(self, 'grade', data)
+        return {'result': 'success'}
+
+    def student_view(self, context=None):
+        """
+        The primary view of the PakXFlashcardXBlock, shown to students
+        when viewing courses.
+        """
+
+        fragment = Fragment()
+        html = render_template('static/html/pakx_flashcard.html', {'self': self})
+        fragment.add_content(html)
+        fragment.add_css(resource_string('static/css/pakx_flashcard.css'))
+        fragment.add_javascript(resource_string('static/js/src/pakx_flashcard.js'))
+        class_name = "small" if len(self.cards) > 2 else "medium"
+        fragment.initialize_js('PakXFlashcardXBlock', {'class_name': class_name})
+        return fragment
+
+    def studio_view(self, context):
+        """
+        Studio edit view
+        """
+
+        fragment = Fragment()
+        fragment.add_content(render_template('static/html/pakx_flashcard_edit.html', {'self': self}))
+        fragment.add_javascript(resource_string('static/js/src/pakx_flashcard_edit.js'))
+        fragment.initialize_js('PakXFlashcardEditXBlock', {"one": "one"})
+
+        return fragment
+
+    @XBlock.json_handler
+    def studio_submit(self, data, suffix=''):
+        self.display_name = data.get('title')
+        self.cards = data.get('cards')
+        return {
+            'result': 'success',
+        }
 
     @XBlock.json_handler
     def submit_grade(self, data, suffix=''):
@@ -39,48 +76,11 @@ class PakXFlashcardXBlock(XBlock):
         self.runtime.publish(self, "grade", data)
         return {'result': 'success'}
 
-    # TO-DO: change this view to display your data your own way.
-    def student_view(self, context=None):
-        """
-        The primary view of the PakXFlashcardXBlock, shown to students
-        when viewing courses.
-        """
+    @XBlock.handler
+    def get_state(self, request, suffix=''):
+        json =  json_response(self.cards)
+        return json
 
-        fragment = Fragment()
-        html = render_template("static/html/pakx_flashcard.html", {'self': self})
-        fragment.add_content(html)
-        fragment.add_css(resource_string("static/css/pakx_flashcard.css"))
-        fragment.add_javascript(resource_string("static/js/src/pakx_flashcard.js"))
-        fragment.initialize_js('PakXFlashcardXBlock')
-        return fragment
-
-    def studio_view(self, context):
-        """
-        Studio edit view
-        """
-
-        fragment = Fragment()
-        fragment.add_content(render_template('static/html/pakx_flashcard_edit.html', {'self': self}))
-        fragment.add_javascript(resource_string("static/js/src/pakx_flashcard.js"))
-        fragment.initialize_js('PakXFlashcardEditXBlock')
-
-        return fragment
-
-    # TO-DO: change this handler to perform your own actions.  You may need more
-    # than one handler, or you may not need any handlers at all.
-    @XBlock.json_handler
-    def increment_count(self, data, suffix=''):
-        """
-        An example handler, which increments the data.
-        """
-        # Just to show data coming in...
-        assert data['hello'] == 'world'
-
-        self.count += 1
-        return {"count": self.count}
-
-    # TO-DO: change this to create the scenarios you'd like to see in the
-    # workbench while developing your XBlock.
     @staticmethod
     def workbench_scenarios():
         """A canned scenario for display in the workbench."""

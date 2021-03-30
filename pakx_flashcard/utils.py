@@ -1,3 +1,7 @@
+from webob import Response
+from json import JSONEncoder
+from datetime import datetime
+
 from django.template import Context, Template
 from pkg_resources import resource_string as pkg_resource_string
 
@@ -23,3 +27,17 @@ def render_template(template_path, context={}):
     template_str = resource_string(template_path)
     template = Template(template_str)
     return template.render(Context(context))
+
+
+def json_response(payload):
+    """
+    This function is to convert dictionary to json http response object.
+    :param payload: dict
+    :return: Response
+    """
+    class CustomJSONEncoder(JSONEncoder):
+        def default(self, value):
+            if isinstance(value, datetime.date):
+                return dict(year=value.year, month=value.month, day=value.day)
+            return value.__dict__
+    return Response(CustomJSONEncoder().encode(payload), content_type='application/json', charset='UTF-8')
