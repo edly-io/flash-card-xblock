@@ -47,6 +47,7 @@
     overflow: hidden;
     font-size: 14px;
     box-sizing: border-box;
+    backface-visibility: hidden;
 }
 .card .front:after,
 .card .back:after {
