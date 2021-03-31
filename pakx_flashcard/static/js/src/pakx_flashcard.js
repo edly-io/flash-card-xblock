@@ -14,12 +14,12 @@ function PakXFlashcardXBlock(runtime, element, params) {
     $(function ($) {
         /* Here's where you'd do things on page load. */
 
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP).click(function(){
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function(){
             $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD).toggleClass('flipped');
             _PakXFlashcardXBlock.submitGrades(1);
         });
 
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP).addClass(params.class_name)
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
     });
 }
 
