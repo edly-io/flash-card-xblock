@@ -183,7 +183,7 @@ PakXFlashcardEditXBlock.prototype.toJSON = function (form) {
     for (var key in editors) {
         // check if the property/key is defined in the object itself, not in parent
         if (editors.hasOwnProperty(key)) {
-            let cardValue = editors[key].getValue().trim();
+            var cardValue = editors[key].getValue().trim();
             if (cardValue !== "") {
                 pages.push(cardValue);
             }
