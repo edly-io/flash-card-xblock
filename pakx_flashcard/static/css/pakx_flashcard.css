@@ -69,6 +69,10 @@
     height: auto;
 }
 .card div img.small { max-width: 60%; }
+.flip.small .card img.small {
+    max-width: 50%;
+    margin: 0 auto 5px;
+}
 .card div h1 {
     margin: 0 0 10px !important;
     font-size: 18px;
