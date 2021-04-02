@@ -75,8 +75,14 @@
     font-weight: bold;
 }
 .card div p { margin: 0; }
-.card div ul,
-.card div ol { text-align: left; }
+.card div ul {
+    text-align: left !important;
+    list-style: disc !important;
+}
+.card div ol {
+    text-align: left !important;
+    list-style: decimal !important;
+}
 .card .front {
   background: #fff;
   border-top: 3px solid #5696A1;
