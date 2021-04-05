@@ -105,6 +105,13 @@
     display: table-cell;
     vertical-align: middle;
 }
+.card .front div div,
+.card .back div div {
+    padding: 0;
+    height: 248px;
+    overflow: hidden;
+    display: block;
+}
 
 .hide {
     display: none;
