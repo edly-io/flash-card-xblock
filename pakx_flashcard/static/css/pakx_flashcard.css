@@ -43,7 +43,7 @@
     overflow: hidden;
     font-size: 14px;
     box-sizing: border-box;
-    backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
 }
 .card .front:after,
 .card .back:after {
@@ -58,6 +58,10 @@
     position: absolute;
     right: 12px;
     transform: scale(1) translateZ(0);
+}
+.card div span {
+    display: table-cell;
+    vertical-align: middle;
 }
 .card div img {
     display: block;
