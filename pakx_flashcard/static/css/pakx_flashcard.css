@@ -124,3 +124,6 @@
 .show {
     display: block;
 }
+[class*="view-"] .modal-window .CodeMirror {
+    height: auto;
+}
