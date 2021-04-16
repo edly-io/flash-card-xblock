@@ -108,12 +108,21 @@
     border-color: #DD1F25;
 }
 .card .back.orange {
-    background: #EEC6A1;
+    background: #FFD7B3;
     border-color: #FF7A00;
 }
 .card .back.green {
-    background: #B2E3D3;
+    background: #fff;
     border-color: #29CB97;
+}
+.card .back.green:before {
+    background: rgba(41, 203, 151, 0.3);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    content: '';
 }
 .card .front.red {
     border-top-color: #DD1F25;
