@@ -123,7 +123,6 @@
     left: 0;
     top: 0;
     content: '';
-    z-index: -1;
 }
 .card .front.red {
     border-top-color: #DD1F25;
@@ -144,7 +143,7 @@
 .card .back div {
     padding: 0 30px;
     box-sizing: border-box;
-    position: static;
+    position: relative;
     height: calc(100% - 50px);
     display: table-cell;
     vertical-align: middle;
