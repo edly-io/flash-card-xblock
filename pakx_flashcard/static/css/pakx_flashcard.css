@@ -32,7 +32,7 @@
     min-width: 400px;
     min-height: 400px;
 }
-.card div {
+.card >div {
     height: 100%;
     width: 100%;
     color: #000;
@@ -42,7 +42,10 @@
     overflow: hidden;
     font-size: 14px;
     box-sizing: border-box;
+    -webkit-backface-visibility: hidden;
     -moz-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    backface-visibility: hidden;
     border: 1px solid #ddd;
 }
 .card .front:after,
@@ -57,7 +60,7 @@
     line-height: 1;
     position: absolute;
     right: 12px;
-    transform: scale(1) translateZ(0);
+    
 }
 .card div span {
     display: table-cell;
