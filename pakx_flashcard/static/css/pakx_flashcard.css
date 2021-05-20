@@ -23,7 +23,6 @@
     cursor: pointer;
     background: #fff;
     box-shadow: 0 0.4rem 1.2rem 0.2rem rgb(0 0 0 / 5%);
-    border: 1px solid #ddd;
 }
 .flip.small .card {
     max-width: 280px;
@@ -47,6 +46,7 @@
     -moz-backface-visibility: hidden;
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
+    border: 1px solid #ddd;
 }
 .card .front:after,
 .card .back:after {
@@ -60,7 +60,10 @@
     line-height: 1;
     position: absolute;
     right: 12px;
-
+}
+.card div span {
+    display: table-cell;
+    vertical-align: middle;
 }
 .card div img {
     display: block;
@@ -77,17 +80,23 @@
     text-align: center;
 }
 .card div p {
-    margin: 0;
+    margin: 0 0 15px !important;
     text-align: center;
 }
+.card div p.small { font-size: 16px; }
+.card div p.medium { font-size: 18px; }
+.card div p.large { font-size: 20px; }
 .card div ul {
     text-align: left !important;
     list-style: disc !important;
+    padding-left: 1.5em !important;
 }
 .card div ol {
     text-align: left !important;
     list-style: decimal !important;
+    padding-left: 1.5em !important;
 }
+.card div ol li { margin-bottom: 0.70788em; }
 .card .front {
   background: #fff;
   border-top: 3px solid #5696A1;
@@ -95,6 +104,39 @@
 .card .back {
     background: #fafafa;
     transform: rotateY( -180deg );
+}
+.card .back.red {
+    background: #F6C7C8;
+    border-color: #DD1F25;
+}
+.card .back.orange {
+    background: #FFD7B3;
+    border-color: #FF7A00;
+}
+.card .back.green {
+    background: #fff;
+    border-color: #29CB97;
+}
+.card .back.green:before {
+    background: rgba(41, 203, 151, 0.3);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    content: '';
+}
+.card .front.red {
+    border-top-color: #DD1F25;
+}
+.card .front.orange {
+    border-top-color: #FF7A00;
+}
+.card .front.green {
+    border-top-color: #29CB97;
+}
+.card .front.no-border {
+    border-top: 1px solid #ddd;
 }
 .card.flipped {
     transform: rotateY( 180deg );
@@ -107,11 +149,12 @@
     height: calc(100% - 50px);
     display: table-cell;
     vertical-align: middle;
+    border: 0;
 }
 .card .front div div,
 .card .back div div {
     padding: 0;
-    height: 248px;
+    height: 240px;
     overflow: hidden;
     display: block;
 }
