@@ -125,6 +125,7 @@
     left: 0;
     top: 0;
     content: '';
+    z-index: -1;
 }
 .card .front.red {
     border-top-color: #DD1F25;
