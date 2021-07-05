@@ -1,6 +1,7 @@
-from webob import Response
+"""Utilitiy functions"""
 from json import JSONEncoder
 from datetime import datetime
+from webob import Response
 
 from django.template import Context, Template
 from pkg_resources import resource_string as pkg_resource_string
@@ -16,7 +17,7 @@ def resource_string(path):
     return data.decode("utf8")
 
 
-def render_template(template_path, context={}):
+def render_template(template_path, context):
     """
     render resorce using django template engine and the give content object to it.
     :param template_path: (str) path of the resource to load
@@ -36,8 +37,8 @@ def json_response(payload):
     :return: Response
     """
     class CustomJSONEncoder(JSONEncoder):
-        def default(self, value):
-            if isinstance(value, datetime.date):
-                return dict(year=value.year, month=value.month, day=value.day)
-            return value.__dict__
+        def default(self, o):
+            if isinstance(o, datetime.date):
+                return dict(year=o.year, month=o.month, day=o.day)
+            return o.__dict__
     return Response(CustomJSONEncoder().encode(payload), content_type='application/json', charset='UTF-8')

@@ -2,7 +2,7 @@
 
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
-from xblock.fields import Integer, Scope, String, List
+from xblock.fields import Scope, String, List
 
 from pakx_flashcard.utils import (render_template, resource_string, json_response)
 
@@ -22,7 +22,7 @@ class PakXFlashcardXBlock(XBlock):
     cards = List(help='List of card objects', scope=Scope.content, default=[])
 
     @XBlock.json_handler
-    def submit_grade(self, data, suffix=''):
+    def submit_grade(self, data, suffix=''):  # pylint: disable=unused-argument
         """
         Publish data for analytics purposes
         """
@@ -31,7 +31,7 @@ class PakXFlashcardXBlock(XBlock):
         self.runtime.publish(self, 'grade', data)
         return {'result': 'success'}
 
-    def student_view(self, context=None):
+    def student_view(self, context=None):  # pylint: disable=unused-argument
         """
         The primary view of the PakXFlashcardXBlock, shown to students
         when viewing courses.
@@ -46,7 +46,7 @@ class PakXFlashcardXBlock(XBlock):
         fragment.initialize_js('PakXFlashcardXBlock', {'class_name': class_name})
         return fragment
 
-    def studio_view(self, context):
+    def studio_view(self, context):  # pylint: disable=unused-argument
         """
         Studio edit view
         """
@@ -59,26 +59,16 @@ class PakXFlashcardXBlock(XBlock):
         return fragment
 
     @XBlock.json_handler
-    def studio_submit(self, data, suffix=''):
+    def studio_submit(self, data, suffix=''):  # pylint: disable=unused-argument
         self.display_name = data.get('title')
         self.cards = data.get('cards')
         return {
             'result': 'success',
         }
 
-    @XBlock.json_handler
-    def submit_grade(self, data, suffix=''):
-        """
-        Publish data for analytics purposes
-        """
-        data['max_value'] = 1.0
-
-        self.runtime.publish(self, "grade", data)
-        return {'result': 'success'}
-
     @XBlock.handler
-    def get_state(self, request, suffix=''):
-        json =  json_response(self.cards)
+    def get_state(self, request, suffix=''):  # pylint: disable=unused-argument
+        json = json_response(self.cards)
         return json
 
     @staticmethod

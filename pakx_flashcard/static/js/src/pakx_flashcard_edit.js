@@ -48,7 +48,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
 
         $(_PakXFlashcardEditXBlock.VIEW.ADD_SLIDE_BUTTON).click(function (e) {
             e.preventDefault();
-            _PakXFlashcardEditXBlock.SlideInputComponent(_PakXFlashcardEditXBlock.VIEW.INPUT_LIST);
+            _PakXFlashcardEditXBlock.slideInputComponent(_PakXFlashcardEditXBlock.VIEW.INPUT_LIST);
         });
 
         $(_PakXFlashcardEditXBlock.VIEW.EDIT_FORM).submit(function (e) {
@@ -63,7 +63,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
 
         _PakXFlashcardEditXBlock.updateView(function (res) {
             res.forEach(function (item, index) {
-                _PakXFlashcardEditXBlock.SlideInputComponent(_PakXFlashcardEditXBlock.VIEW.INPUT_LIST, item);
+                _PakXFlashcardEditXBlock.slideInputComponent(_PakXFlashcardEditXBlock.VIEW.INPUT_LIST, item);
             });
         });
     });
@@ -107,7 +107,7 @@ PakXFlashcardEditXBlock.prototype.deleteCard = function(param, target) {
 PakXFlashcardEditXBlock.prototype.insertSnippet = function(targetElement, code, target) {
     _PakXFlashcardEditXBlock = target
     var editor = _PakXFlashcardEditXBlock.editors[$(targetElement.target).attr("data-id")]
-    editor.setValue(editor.getValue()+code);
+    editor.setValue(editor.getValue() + code);
     _PakXFlashcardEditXBlock.changeButtonStatus(targetElement.target, target)
 }
 
@@ -137,7 +137,7 @@ PakXFlashcardEditXBlock.prototype.elementText = function(element) {
     return $(element).text();
 }
 
-PakXFlashcardEditXBlock.prototype.SlideInputComponent = function (element, data) {
+PakXFlashcardEditXBlock.prototype.slideInputComponent = function (element, data) {
     var _PakXFlashcardEditXBlock = this;
     var INPUT_TEMPLATE = $($(_PakXFlashcardEditXBlock.VIEW.INPUT_TEMPLATE).text());
     var timestamp = new Date().getMilliseconds() + Math.random();
