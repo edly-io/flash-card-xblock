@@ -1,0 +1,8 @@
+[FORMAT]
+max-line-length=120
+disable =
+    method-hidden,
+    too-many-ancestors,
+    missing-class-docstring,
+    missing-module-docstring,
+    missing-function-docstring,
