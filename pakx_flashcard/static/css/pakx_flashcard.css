@@ -32,6 +32,18 @@
     min-width: 400px;
     min-height: 400px;
 }
+@media (max-width: 767px) {
+    .flip.small .card {
+        max-width: 345px;
+        max-height: 345px;
+        min-width: 345px;
+        min-height: 345px;
+    }
+    .flip.medium .card {
+        min-width: 345px;
+        min-height: 345px;
+    }
+}
 .card div {
     height: 100%;
     width: 100%;
