@@ -1,7 +1,10 @@
-PakistanX Flashcards
+PakistanX Flashcards ![Pylint Workflow](https://github.com/PakistanX/pakx-flashcard-xblock/actions/workflows/pylint.yml/badge.svg)
+![ESLint workflow](https://github.com/PakistanX/pakx-flashcard-xblock/actions/workflows/es-lint.yml/badge.svg)
 ---------------------------------------------
 
 This XBlock enables authoring Flashcards in openedX.
+
+
 
 Installation
 ------------
