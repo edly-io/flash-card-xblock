@@ -1,11 +1,20 @@
 /* CSS for PakXFlashcardXBlock */
-
+.pakx_flashcard_block {
+    position: relative;
+    z-index: 1;
+}
 .flashcard_wrapper {
     display: flex;
     max-width: 990px;
     margin: 20px auto;
     justify-content: center;
     flex-wrap: wrap;
+    position: relative;
+    z-index: -1;
+}
+.flashcard_wrapper .flip {
+    position: relative;
+    z-index: 1;
 }
 .flip .card {
     width: 100%;
