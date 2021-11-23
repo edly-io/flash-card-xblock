@@ -16,7 +16,7 @@ class PakXFlashcardXBlock(XBlock):
     icon_class = 'problem'
 
     display_name = String(help='This name appears in horizontal navigation at the top of the page.',
-                          default='PakistanX Flashcards',
+                          default='ilmX Flashcards',
                           scope=Scope.content)
 
     cards = List(help='List of card objects', scope=Scope.content, default=[])
