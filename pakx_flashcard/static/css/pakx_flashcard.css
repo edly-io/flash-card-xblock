@@ -153,6 +153,7 @@
 .card.flipped {
     transform: rotateY( 180deg );
 }
+
 .card .front div,
 .card .back div {
     padding: 0 30px;
@@ -178,6 +179,11 @@
 .show {
     display: block;
 }
+
 [class*="view-"] .modal-window .CodeMirror {
+    height: auto;
+}
+
+.align-middle .card .front div div, .align-middle .card .back div div {
     height: auto;
 }
