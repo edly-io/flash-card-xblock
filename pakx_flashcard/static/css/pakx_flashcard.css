@@ -184,6 +184,6 @@
     height: auto;
 }
 
-.align-middle .card .front div div, .align-middle .card .back div div {
+.card .front.align-middle div div, .card .back.align-middle div div {
     height: auto;
 }
