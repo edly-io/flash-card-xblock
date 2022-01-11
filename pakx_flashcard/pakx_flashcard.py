@@ -13,7 +13,6 @@ class PakXFlashcardXBlock(XBlock):
     """
 
     has_score = True
-    icon_class = 'problem'
 
     display_name = String(help='This name appears in horizontal navigation at the top of the page.',
                           default='ilmX Flashcards',
