@@ -15,7 +15,7 @@ class PakXFlashcardXBlock(XBlock):
     has_score = True
 
     display_name = String(help='This name appears in horizontal navigation at the top of the page.',
-                          default='ilmX Flashcards',
+                          default='Flipcard Activity',
                           scope=Scope.content)
 
     cards = List(help='List of card objects', scope=Scope.content, default=[])
