@@ -13,7 +13,7 @@ Install the requirements into the python virtual environment of your
 ``edx-platform`` installation by running the following command from the
 root folder:
 
-    pip install -e git@github.com:PakistanX/pakx-flashcard-xblock.git@release-v0.1.0#egg=pakx_flashcards
+    pip install -e git@github.com:PakistanX/pakx-flashcard-xblock.git@release-v0.1.1#egg=pakx_flashcards
 
 Enabling in Studio
 ------------------
