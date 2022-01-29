@@ -11,6 +11,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "eslint": "^7.27.0"
+    "eslint": "^7.27.0",
+    "ansi-regex": ">=5.0.1"
   }
 }
