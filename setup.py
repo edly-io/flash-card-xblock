@@ -25,7 +25,7 @@ def package_data(pkg, roots):
 
 setup(
     name='pakx_flashcard-xblock',
-    version='0.1.1',
+    version='0.1.3',
     description='pakx_flashcard XBlock enables authors to author flashcards with flip functionality',
     license='',
     packages=[
