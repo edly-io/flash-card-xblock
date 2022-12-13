@@ -171,7 +171,10 @@
     overflow: hidden;
     display: block;
 }
-
+.card .back div div {
+    overflow: auto;
+    padding: 10px;
+}
 .hide {
     display: none;
 }
