@@ -119,8 +119,9 @@
 }
 .card div ol li { margin-bottom: 0.70788em; }
 .card .front {
-  background: #fff;
-  border-top: 3px solid #56B7F7;
+    background: #fff;
+    border-top: 3px solid #56B7F7;
+    z-index: 2;
 }
 .card .back {
     background: #fafafa;
@@ -153,7 +154,9 @@
 .card.flipped {
     transform: rotateY( 180deg );
 }
-
+.card.flipped .front {
+    z-index: -1;
+} 
 .card .front div,
 .card .back div {
     padding: 0 30px;
@@ -166,15 +169,12 @@
 }
 .card .front div div,
 .card .back div div {
-    padding: 0;
+    padding: 10px;
     height: 240px;
-    overflow: hidden;
+    overflow: auto;
     display: block;
 }
-.card .back div div {
-    overflow: auto;
-    padding: 10px;
-}
+
 .hide {
     display: none;
 }
