@@ -4,7 +4,8 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import Scope, String, List
 
-from pakx_flashcard.utils import (render_template, resource_string, json_response)
+from pakx_flashcard.utils import (
+    render_template, resource_string, json_response)
 
 
 class PakXFlashcardXBlock(XBlock):
@@ -28,6 +29,8 @@ class PakXFlashcardXBlock(XBlock):
         data['max_value'] = 1.0
 
         self.runtime.publish(self, 'grade', data)
+        self.runtime.publish(self, 'completion', {'completion': 0.0})
+
         return {'result': 'success'}
 
     def student_view(self, context=None):  # pylint: disable=unused-argument
@@ -37,12 +40,15 @@ class PakXFlashcardXBlock(XBlock):
         """
 
         fragment = Fragment()
-        html = render_template('static/html/pakx_flashcard.html', {'self': self})
+        html = render_template(
+            'static/html/pakx_flashcard.html', {'self': self})
         fragment.add_content(html)
         fragment.add_css(resource_string('static/css/pakx_flashcard.css'))
-        fragment.add_javascript(resource_string('static/js/src/pakx_flashcard.js'))
+        fragment.add_javascript(resource_string(
+            'static/js/src/pakx_flashcard.js'))
         class_name = "small" if len(self.cards) > 2 else "medium"
-        fragment.initialize_js('PakXFlashcardXBlock', {'class_name': class_name})
+        fragment.initialize_js('PakXFlashcardXBlock', {
+                               'class_name': class_name})
         return fragment
 
     def studio_view(self, context):  # pylint: disable=unused-argument
@@ -51,8 +57,10 @@ class PakXFlashcardXBlock(XBlock):
         """
 
         fragment = Fragment()
-        fragment.add_content(render_template('static/html/pakx_flashcard_edit.html', {'self': self}))
-        fragment.add_javascript(resource_string('static/js/src/pakx_flashcard_edit.js'))
+        fragment.add_content(render_template(
+            'static/html/pakx_flashcard_edit.html', {'self': self}))
+        fragment.add_javascript(resource_string(
+            'static/js/src/pakx_flashcard_edit.js'))
         fragment.initialize_js('PakXFlashcardEditXBlock', {"one": "one"})
 
         return fragment
