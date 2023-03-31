@@ -67,6 +67,11 @@ class PakXFlashcardXBlock(XBlock):
 
     @XBlock.json_handler
     def studio_submit(self, data, suffix=''):  # pylint: disable=unused-argument
+        if not data.get('title'):
+            return {
+                'success': False,
+                'errors': "Display name can't be empty."
+            }
         self.display_name = data.get('title')
         self.cards = data.get('cards')
         return {
