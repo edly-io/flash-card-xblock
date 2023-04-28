@@ -19,6 +19,16 @@ function PakXFlashcardXBlock(runtime, element, params) {
             _PakXFlashcardXBlock.submitGrades(1);
         });
 
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e){
+            if (e.type === 'keypress' && e.keyCode == 13) {
+                $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD).toggleClass('flipped');
+                _PakXFlashcardXBlock.submitGrades(1);
+                $(this).attr('aria-expanded', function (i, attr) {
+                    return attr == 'true' ? 'false' : 'true'
+                });
+            }
+        });
+
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
     });
 }
