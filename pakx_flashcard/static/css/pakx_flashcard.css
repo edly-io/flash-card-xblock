@@ -28,10 +28,10 @@
     max-width: 460px;
     min-height: 280px;
     max-height: 460px;
-    transform: scale(.9) translateZ(0);
+    transform: scale(.95) translateZ(0);
     cursor: pointer;
     background: #fff;
-    box-shadow: 0 0.4rem 1.2rem 0.2rem rgb(0 0 0 / 5%);
+    box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
 }
 .flip.small .card {
     max-width: 280px;
@@ -61,17 +61,17 @@
     position: absolute;
     display: table;
     overflow: hidden;
-    font-size: 14px;
     box-sizing: border-box;
     -webkit-backface-visibility: hidden;
     -moz-backface-visibility: hidden;
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
-    border: 1px solid #ddd;
+    border: 1px solid var(--grey-tint2);
 }
 .card .front:after,
 .card .back:after {
-    content: '\f021';
+    /* content: '\f021'; */
+    content: "";
     font-family: 'FontAwesome';
     border: none;
     bottom: 12px;
@@ -81,7 +81,19 @@
     line-height: 1;
     position: absolute;
     right: 12px;
+    padding: 5px;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
 }
+.card:hover .front:after,
+.card:hover .back:after {
+    background-color: var(--grey-tint1) !important;
+}
+.card .back:after {
+    transform: scaleX(-1);
+}
+
 .card div span {
     display: table-cell;
     vertical-align: middle;
@@ -94,11 +106,10 @@
 }
 .card div img.small { max-width: 60%; }
 .flip.small .card img.small { max-width: 50%; }
-.card div h1 {
-    margin: 0 0 10px !important;
-    font-size: 18px;
-    font-weight: bold;
+.card div h2 {
+    margin: 0 0 15px !important;
     text-align: center;
+    letter-spacing: 0;
 }
 .card div p {
     margin: 0 0 15px !important;
@@ -120,11 +131,14 @@
 .card div ol li { margin-bottom: 0.70788em; }
 .card .front {
     background: #fff;
-    border-top: 3px solid #56B7F7;
+    border-top: 6px solid var(--primary);
     z-index: 2;
 }
+.card .front:hover {
+    border-top-color: var(--primary-dark);
+}
+
 .card .back {
-    background: #fafafa;
     transform: rotateY( -180deg );
 }
 .card .back.red {
@@ -159,7 +173,7 @@
 } 
 .card .front div,
 .card .back div {
-    padding: 0 30px;
+    padding: 0 25px;
     box-sizing: border-box;
     position: static;
     height: calc(100% - 50px);
@@ -169,8 +183,8 @@
 }
 .card .front div div,
 .card .back div div {
-    padding: 10px;
-    height: 240px;
+    padding: 10px 0;
+    height: 220px;
     overflow: auto;
     display: block;
 }
