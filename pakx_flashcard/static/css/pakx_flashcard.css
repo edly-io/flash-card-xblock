@@ -173,7 +173,7 @@
 } 
 .card .front div,
 .card .back div {
-    padding: 0 25px;
+    padding: 0 30px;
     box-sizing: border-box;
     position: static;
     height: calc(100% - 50px);
@@ -183,7 +183,7 @@
 }
 .card .front div div,
 .card .back div div {
-    padding: 10px 0;
+    padding: 10px 5px;
     height: 220px;
     overflow: auto;
     display: block;
