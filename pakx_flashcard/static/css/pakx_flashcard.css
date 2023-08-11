@@ -67,6 +67,7 @@
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
     border: 1px solid var(--grey-tint2);
+    background: #fff;
 }
 .card .front:after,
 .card .back:after {
@@ -133,6 +134,7 @@
     background: #fff;
     border-top: 6px solid var(--primary);
     z-index: 2;
+    transform: rotateY(0deg);
 }
 .card .front:hover {
     border-top-color: var(--primary-dark);
