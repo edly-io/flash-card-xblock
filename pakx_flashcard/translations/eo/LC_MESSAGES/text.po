@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -12,24 +11,26 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: pakx_flashcard/pakx_flashcard.py:27
+#: pakx_flashcard/pakx_flashcard.py
 msgid "This name appears in horizontal navigation at the top of the page."
-msgstr "Ĉi tiu nomo aperas en horizontala navigado ĉe la supro de la paĝo."
+msgstr ""
+"Thïs nämé äppéärs ïn hörïzöntäl nävïgätïön ät thé töp öf thé pägé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
-#: pakx_flashcard/pakx_flashcard.py:28
+#: pakx_flashcard/pakx_flashcard.py
 msgid "Flip Card Activities"
-msgstr "Flip Karto-Agadoj"
+msgstr "Flïp Çärd Àçtïvïtïés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: pakx_flashcard/pakx_flashcard.py:31
+#: pakx_flashcard/pakx_flashcard.py
 msgid "List of card objects"
-msgstr "Listo de kartobjektoj"
+msgstr "Lïst öf çärd ößjéçts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
-#: pakx_flashcard/pakx_flashcard.py:93
+#: pakx_flashcard/pakx_flashcard.py
 msgid "Display name can't be empty."
-msgstr "Montrnomo ne povas esti malplena."
+msgstr "Dïspläý nämé çän't ßé émptý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
