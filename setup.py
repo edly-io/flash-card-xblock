@@ -39,5 +39,5 @@ setup(
             'pakx_flashcard = pakx_flashcard:PakXFlashcardXBlock',
         ]
     },
-    package_data=package_data("pakx_flashcard", ["static", "public"]),
+    package_data=package_data("pakx_flashcard", ["static", "public", "translations"]),
 )
