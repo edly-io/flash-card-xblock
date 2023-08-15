@@ -4,10 +4,19 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import Scope, String, List
 
-from pakx_flashcard.utils import (
-    render_template, resource_string, json_response)
+from pakx_flashcard.utils import (resource_string, json_response)
+from xblockutils.resources import ResourceLoader
+
+resource_loader = ResourceLoader(__name__)
+
+def _(text):
+    """
+    Make '_' a no-op, so we can scrape strings
+    """
+    return text
 
 
+@XBlock.needs('i18n')
 class PakXFlashcardXBlock(XBlock):
     """
     PakistanX Flashcards XBlock is used to display random number of cards to user
@@ -15,11 +24,16 @@ class PakXFlashcardXBlock(XBlock):
 
     has_score = True
 
-    display_name = String(help='This name appears in horizontal navigation at the top of the page.',
-                          default='Flip Card Activities',
+    display_name = String(help=_('This name appears in horizontal navigation at the top of the page.'),
+                          default=_('Flip Card Activities'),
                           scope=Scope.content)
 
-    cards = List(help='List of card objects', scope=Scope.content, default=[])
+    cards = List(help=_('List of card objects'), scope=Scope.content, default=[])
+
+    @property
+    def i18n_service(self):
+        """ Obtains translation service """
+        return self.runtime.service(self, 'i18n')
 
     @XBlock.json_handler
     def submit_grade(self, data, suffix=''):  # pylint: disable=unused-argument
@@ -40,8 +54,11 @@ class PakXFlashcardXBlock(XBlock):
         """
 
         fragment = Fragment()
-        html = render_template(
-            'static/html/pakx_flashcard.html', {'self': self})
+        html = resource_loader.render_django_template(
+            'static/html/pakx_flashcard.html',
+            context={'self': self},
+            i18n_service=self.i18n_service
+        )
         fragment.add_content(html)
         fragment.add_css(resource_string('static/css/pakx_flashcard.css'))
         fragment.add_javascript(resource_string(
@@ -57,8 +74,11 @@ class PakXFlashcardXBlock(XBlock):
         """
 
         fragment = Fragment()
-        fragment.add_content(render_template(
-            'static/html/pakx_flashcard_edit.html', {'self': self}))
+        fragment.add_content(resource_loader.render_django_template(
+            'static/html/pakx_flashcard_edit.html',
+            context={'self': self},
+            i18n_service=self.resource_loader.render_django_template
+        ))
         fragment.add_javascript(resource_string(
             'static/js/src/pakx_flashcard_edit.js'))
         fragment.initialize_js('PakXFlashcardEditXBlock', {"one": "one"})
@@ -70,7 +90,7 @@ class PakXFlashcardXBlock(XBlock):
         if not data.get('title'):
             return {
                 'success': False,
-                'errors': "Display name can't be empty."
+                'errors': _("Display name can't be empty.")
             }
         self.display_name = data.get('title')
         self.cards = data.get('cards')
