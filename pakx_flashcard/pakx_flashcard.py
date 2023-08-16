@@ -77,7 +77,7 @@ class PakXFlashcardXBlock(XBlock):
         fragment.add_content(resource_loader.render_django_template(
             'static/html/pakx_flashcard_edit.html',
             context={'self': self},
-            i18n_service=self.resource_loader.render_django_template
+            i18n_service=self.i18n_service
         ))
         fragment.add_javascript(resource_string(
             'static/js/src/pakx_flashcard_edit.js'))
