@@ -43,7 +43,7 @@ class PakXFlashcardXBlock(XBlock):
         data['max_value'] = 1.0
 
         self.runtime.publish(self, 'grade', data)
-        self.runtime.publish(self, 'completion', {'completion': 0.0})
+        self.runtime.publish(self, 'completion', {'completion': 1.0})
 
         return {'result': 'success'}
 
