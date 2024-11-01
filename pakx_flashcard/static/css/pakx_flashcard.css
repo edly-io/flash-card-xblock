@@ -174,7 +174,7 @@
 } 
 .card .front div,
 .card .back div {
-    padding: 0 30px;
+    padding: 0 25px;
     box-sizing: border-box;
     position: static;
     height: calc(100% - 50px);
@@ -188,6 +188,13 @@
     height: 220px;
     overflow: auto;
     display: block;
+}
+.card .front div img {
+    max-height: 150px;
+    object-fit: contain;
+}
+.card .front h2 {
+    font-size: 16px !important;
 }
 
 .hide {
@@ -209,4 +216,10 @@
 .card .front.align-top div, .card .back.align-top div {
     vertical-align: top;
     padding-top: 20px;
+}
+
+@media (min-width: 600px) {
+    .card .front h2 {
+        font-size: 20px !important;
+    }
 }
