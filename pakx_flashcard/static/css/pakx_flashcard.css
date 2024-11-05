@@ -58,7 +58,6 @@
     width: 100%;
     text-align: center;
     position: absolute;
-    display: table;
     overflow: hidden;
     box-sizing: border-box;
     -webkit-backface-visibility: hidden;
@@ -67,8 +66,7 @@
     backface-visibility: hidden;
     border: 1px solid var(--grey-tint2);
 }
-.card .front:after,
-.card .back:after {
+.card:after {
     /* content: '\f021'; */
     content: "";
     font-family: 'FontAwesome';
@@ -79,18 +77,23 @@
     font-size: 17px;
     line-height: 1;
     position: absolute;
-    right: 12px;
+    right: 8px;
     padding: 5px;
     border-radius: 4px;
     width: 16px;
     height: 16px;
+    z-index: 2;
 }
-.card:hover .front:after,
-.card:hover .back:after {
+.card:hover:after,
+.card:hover:after {
     background-color: var(--grey-tint1) !important;
 }
-.card .back:after {
-    transform: scaleX(-1);
+.card.flipped:after {
+    left: 8px;
+    right: inherit;
+}
+.card div[aria-hidden="true"] > div {
+    display: none;
 }
 
 .card div span {
@@ -172,21 +175,27 @@
 .card.flipped .front {
     z-index: -1;
 } 
+.card .front,
+.card .back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    height: 100%;
+}
 .card .front div,
 .card .back div {
     padding: 0 25px;
     box-sizing: border-box;
     position: static;
-    height: calc(100% - 50px);
-    display: table-cell;
-    vertical-align: middle;
+    height: auto;
     border: 0;
+    flex-grow: 1;
+    margin: auto;
 }
 .card .front div div,
 .card .back div div {
-    padding: 10px 5px;
-    height: 220px;
-    overflow: auto;
+    padding: 0;
     display: block;
 }
 .card .front div img {
