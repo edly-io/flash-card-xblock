@@ -31,6 +31,7 @@ setup(
     packages=[
         'pakx_flashcard',
     ],
+    python_requires='>=3.11',
     install_requires=[
         'XBlock',
     ],
