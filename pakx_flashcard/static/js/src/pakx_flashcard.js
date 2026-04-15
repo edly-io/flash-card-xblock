@@ -44,7 +44,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
-    });
+    }(jQuery));
 }
 
 PakXFlashcardXBlock.prototype.submitGrades = function(grade) {
