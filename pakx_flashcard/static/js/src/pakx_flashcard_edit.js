@@ -56,6 +56,11 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
             _PakXFlashcardEditXBlock.submit(this);
         });
 
+        $(".save-button", element).click(function (e) {
+            e.preventDefault();
+            _PakXFlashcardEditXBlock.submit(_PakXFlashcardEditXBlock.VIEW.EDIT_FORM[0]);
+        });
+
         $(_PakXFlashcardEditXBlock.VIEW.CANCEL_BUTTON).click(function (e) {
             e.preventDefault();
             _PakXFlashcardEditXBlock.cancel(this);
