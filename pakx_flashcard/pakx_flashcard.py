@@ -64,8 +64,15 @@ class PakXFlashcardXBlock(XBlock):
         fragment.add_javascript(resource_string(
             'static/js/src/pakx_flashcard.js'))
         class_name = "small" if len(self.cards) > 2 else "medium"
+        gettext = self.i18n_service.gettext
         fragment.initialize_js('PakXFlashcardXBlock', {
-                               'class_name': class_name})
+                               'class_name': class_name,
+                               'text': {
+                                   'front_label': gettext('Question'),
+                                   'back_label': gettext('Answer'),
+                                   'front_hint': gettext('Tap to turn over'),
+                                   'back_hint': gettext('Tap to see the question'),
+                               }})
         return fragment
 
     def studio_view(self, context):  # pylint: disable=unused-argument
