@@ -66,32 +66,6 @@
     backface-visibility: hidden;
     border: 1px solid var(--grey-tint2);
 }
-.card:after {
-    /* content: '\f021'; */
-    content: "";
-    font-family: 'FontAwesome';
-    border: none;
-    bottom: 12px;
-    color: #707070;
-    cursor: pointer;
-    font-size: 17px;
-    line-height: 1;
-    position: absolute;
-    right: 8px;
-    padding: 5px;
-    border-radius: 4px;
-    width: 16px;
-    height: 16px;
-    z-index: 2;
-}
-.card:hover:after,
-.card:hover:after {
-    background-color: var(--grey-tint1) !important;
-}
-.card.flipped:after {
-    left: 8px;
-    right: inherit;
-}
 .card div[aria-hidden="true"] > div {
     display: none;
 }
@@ -178,10 +152,33 @@
 .card .front,
 .card .back {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: center;
     overflow: auto;
     height: 100%;
+    padding: 16px 0;
+}
+.card .front:focus-visible,
+.card .back:focus-visible {
+    outline: 2px solid var(--primary, #000);
+    outline-offset: 2px;
+}
+/* "Question" / "Answer" at the top, "Tap to ..." at the bottom of each face */
+.card .front .flashcard-face-label,
+.card .back .flashcard-face-label,
+.card .front .flashcard-hint,
+.card .back .flashcard-hint {
+    display: block;
+    flex: none;
+    padding: 0 25px;
+    color: #707070;
+    font-size: 14px;
+    line-height: 16px;
+}
+.card .front .flashcard-hint,
+.card .back .flashcard-hint {
+    color: inherit;
 }
 .card .front div,
 .card .back div {
@@ -190,7 +187,7 @@
     position: static;
     height: auto;
     border: 0;
-    flex-grow: 1;
+    flex: 0 0 auto;  /* centred between the label and the hint by margin: auto */
     margin: auto;
 }
 .card .front div div,
@@ -230,5 +227,11 @@
 @media (min-width: 600px) {
     .card .front h2 {
         font-size: 20px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flip .card {
+        transition: none;
     }
 }

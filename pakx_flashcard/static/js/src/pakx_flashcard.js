@@ -44,6 +44,17 @@ function PakXFlashcardXBlock(runtime, element, params) {
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
+
+        // Label each face and say how to turn it. The hint repeats what the
+        // button role already tells screen readers, so it is hidden from them.
+        function addFaceText(selector, label, hint) {
+            $(selector, element).each(function () {
+                $(this).prepend($('<span class="flashcard-face-label"></span>').text(label));
+                $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
+            });
+        }
+        addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_label, params.text.front_hint);
+        addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_label, params.text.back_hint);
     }(jQuery));
 }
 
