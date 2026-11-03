@@ -55,6 +55,41 @@ function PakXFlashcardXBlock(runtime, element, params) {
         }
         addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_label, params.text.front_hint);
         addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_label, params.text.back_hint);
+
+        // A lead, and the parts to show one card at a time: page dots, a
+        // "Card 2 of 6" line for screen readers and a Next card button. The
+        // block's CSS hides them all and shows every card; a theme that pages
+        // the cards shows them and hides each .flip but .flashcard-current.
+        var $wrapper = $('.flashcard_wrapper', element);
+        var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
+        $wrapper.before($('<p class="flashcard-lead"></p>').text(params.text.lead));
+        if ($cards.length > 1) {
+            var $dots = $('<div class="flashcard-dots" aria-hidden="true"></div>');
+            var $count = $('<p class="flashcard-count" aria-live="polite"></p>');
+            var $next = $('<button type="button" class="flashcard-next"></button>').text(params.text.next);
+            var current = 0;
+            var showCard = function (index) {
+                current = index;
+                $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
+                $dots.children().each(function (i) {
+                    $(this).toggleClass('flashcard-dot-done', i < index)
+                        .toggleClass('flashcard-dot-current', i === index);
+                });
+                $count.text(params.text.count
+                    .replace('{current}', index + 1)
+                    .replace('{total}', $cards.length));
+                $next.prop('hidden', index === $cards.length - 1);
+            };
+            $cards.each(function () {
+                $dots.append('<span class="flashcard-dot"></span>');
+            });
+            $wrapper.after($dots, $count, $next);
+            $next.click(function () {
+                showCard(current + 1);
+                $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+            });
+            showCard(0);
+        }
     }(jQuery));
 }
 

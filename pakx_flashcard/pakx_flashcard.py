@@ -70,8 +70,12 @@ class PakXFlashcardXBlock(XBlock):
                                'text': {
                                    'front_label': gettext('Question'),
                                    'back_label': gettext('Answer'),
-                                   'front_hint': gettext('Tap to turn over'),
-                                   'back_hint': gettext('Tap to see the question'),
+                                   'front_hint': gettext('Turn over'),
+                                   'back_hint': gettext('Turn over'),
+                                   'lead': gettext('Think of your answer, then turn the card over.'),
+                                   'next': gettext('Next card'),
+                                   # The JS fills in {current} and {total}
+                                   'count': gettext('Card {current} of {total}'),
                                }})
         return fragment
 
