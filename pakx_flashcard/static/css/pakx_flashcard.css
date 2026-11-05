@@ -203,8 +203,10 @@
     font-size: 16px !important;
 }
 
-/* The lead, page dots, card count and Next card button the JS adds. Hidden
+/* The title and description (the platform already shows the unit title),
+   and the page dots, card count and Next card button the JS adds. Hidden
    here, where every card shows; a theme that pages the cards shows them. */
+.pakx_flashcard_block .flashcard-title,
 .pakx_flashcard_block .flashcard-lead,
 .pakx_flashcard_block .flashcard-dots,
 .pakx_flashcard_block .flashcard-count,

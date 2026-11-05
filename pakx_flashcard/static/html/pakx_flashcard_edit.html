@@ -130,10 +130,17 @@
       <ul class="list-input settings-list" id="{{usage_id}}-ul">
         <li class="field comp-setting-entry is-set">
           <div class="wrapper-comp-setting">
-            <label class="label setting-label" for="edit_display_name">Display Name</label>
+            <label class="label setting-label" for="edit_display_name">Title</label>
             <input class="input setting-input edit-display-name" id="edit_display_name" value="{{ self.display_name }}" type="text" data-default-value="{{self.display_name}}">
           </div>
-          <span class="tip setting-help">This name appears in the horizontal navigation at the top of the page.</span>
+          <span class="tip setting-help">The heading over the cards. It also appears in the horizontal navigation at the top of the page.</span>
+        </li>
+        <li class="field comp-setting-entry is-set">
+          <div class="wrapper-comp-setting">
+            <label class="label setting-label" for="edit_description">Description</label>
+            <input class="input setting-input edit-description" id="edit_description" value="{{ self.description }}" type="text" data-default-value="{{self.description}}">
+          </div>
+          <span class="tip setting-help">A line under the title, saying what to do with the cards. Leave it empty to show none.</span>
         </li>
       </ul>
     </div>

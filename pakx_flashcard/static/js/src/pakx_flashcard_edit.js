@@ -15,6 +15,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
         INPUT_LIST: USAGE_ID + '-ul',
         EDIT_FORM: USAGE_ID + '-form',
         TITLE_ID: '#edit_display_name',
+        DESCRIPTION_ID: '#edit_description',
         IMAGE_PARA: '.image-paragraph',
         PARA_IMAGE: '.paragraph-image',
         CANCEL_BUTTON: '.cancel-button',
@@ -31,6 +32,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
 
     _PakXFlashcardEditXBlock.VIEW = {
         TITLE_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.TITLE_ID, element),
+        DESCRIPTION_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.DESCRIPTION_ID, element),
         CANCEL_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.CANCEL_BUTTON, element),
         INPUT_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.INPUT_TEMPLATE, element),
         ADD_SLIDE_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.ADD_SLIDE_BUTTON, element),
@@ -195,7 +197,8 @@ PakXFlashcardEditXBlock.prototype.toJSON = function (form) {
         }
     }
     var title = _PakXFlashcardEditXBlock.VIEW.TITLE_ELEMENT.val();
-    return {title: title, cards: pages}
+    var description = _PakXFlashcardEditXBlock.VIEW.DESCRIPTION_ELEMENT.val();
+    return {title: title, description: description, cards: pages}
 }
 
 PakXFlashcardEditXBlock.prototype.post = function (url, payload, config = undefined) {

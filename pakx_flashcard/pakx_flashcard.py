@@ -28,6 +28,10 @@ class PakXFlashcardXBlock(XBlock):
                           default=_('Flip Card Activities'),
                           scope=Scope.content)
 
+    description = String(help=_('A line under the title, saying what to do with the cards.'),
+                         default=_('Think of your answer, then turn the card over.'),
+                         scope=Scope.content)
+
     cards = List(help=_('List of card objects'), scope=Scope.content, default=[])
 
     @property
@@ -72,7 +76,6 @@ class PakXFlashcardXBlock(XBlock):
                                    'back_label': gettext('Answer'),
                                    'front_hint': gettext('Turn over'),
                                    'back_hint': gettext('Turn over'),
-                                   'lead': gettext('Think of your answer, then turn the card over.'),
                                    'next': gettext('Next card'),
                                    # The JS fills in {current} and {total}
                                    'count': gettext('Card {current} of {total}'),
@@ -101,9 +104,10 @@ class PakXFlashcardXBlock(XBlock):
         if not data.get('title'):
             return {
                 'success': False,
-                'errors': _("Display name can't be empty.")
+                'errors': _("Title can't be empty.")
             }
         self.display_name = data.get('title')
+        self.description = data.get('description', self.description).strip()
         self.cards = data.get('cards')
         return {
             'result': 'success',

@@ -56,19 +56,27 @@ function PakXFlashcardXBlock(runtime, element, params) {
         addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_label, params.text.front_hint);
         addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_label, params.text.back_hint);
 
-        // A lead, and the parts to show one card at a time: page dots, a
-        // "Card 2 of 6" line for screen readers and a Next card button. The
-        // block's CSS hides them all and shows every card; a theme that pages
-        // the cards shows them and hides each .flip but .flashcard-current.
+        // The parts to show one card at a time: page dots, a "Card 2 of 6"
+        // line for screen readers and a Next card button. The block's CSS
+        // hides them all and shows every card; a theme that pages the cards
+        // shows them and hides each .flip but .flashcard-current.
+        //
+        // In the Uber Learn app, Next card is the app's footer button instead:
+        // the block posts plugin.footerAction with the label until the last
+        // card, then null to hand the button back to Continue. The app answers
+        // uber.footerActionAccepted, which hides the block's own button for
+        // good, and uber.footerActionClicked on each tap.
         var $wrapper = $('.flashcard_wrapper', element);
         var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
-        $wrapper.before($('<p class="flashcard-lead"></p>').text(params.text.lead));
         if ($cards.length > 1) {
             var $dots = $('<div class="flashcard-dots" aria-hidden="true"></div>');
             var $count = $('<p class="flashcard-count" aria-live="polite"></p>');
             var $next = $('<button type="button" class="flashcard-next"></button>').text(params.text.next);
             var current = 0;
+            var appOrigin = PakXFlashcardXBlock.appOrigin();
+            var appHasNext = false;
             var showCard = function (index) {
+                var isLast = index === $cards.length - 1;
                 current = index;
                 $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
                 $dots.children().each(function (i) {
@@ -78,20 +86,55 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 $count.text(params.text.count
                     .replace('{current}', index + 1)
                     .replace('{total}', $cards.length));
-                $next.prop('hidden', index === $cards.length - 1);
+                $next.prop('hidden', isLast || appHasNext);
+                if (appOrigin) {
+                    window.parent.postMessage({
+                        type: 'plugin.footerAction',
+                        payload: isLast ? null : {label: params.text.next}
+                    }, appOrigin);
+                }
+            };
+            var showNextCard = function () {
+                if (current < $cards.length - 1) {
+                    showCard(current + 1);
+                    $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+                }
             };
             $cards.each(function () {
                 $dots.append('<span class="flashcard-dot"></span>');
             });
             $wrapper.after($dots, $count, $next);
-            $next.click(function () {
-                showCard(current + 1);
-                $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
-            });
+            $next.click(showNextCard);
+            if (appOrigin) {
+                window.addEventListener('message', function (event) {
+                    if (event.source !== window.parent || event.origin !== appOrigin || !event.data) {
+                        return;
+                    }
+                    if (event.data.type === 'uber.footerActionAccepted') {
+                        appHasNext = true;
+                        $next.prop('hidden', true);
+                    } else if (event.data.type === 'uber.footerActionClicked') {
+                        showNextCard();
+                    }
+                });
+            }
             showCard(0);
         }
     }(jQuery));
 }
+
+// Origin of the page embedding this block (the Uber Learn app), or null when
+// the block is not in an iframe.
+PakXFlashcardXBlock.appOrigin = function () {
+    if (window.parent === window || !document.referrer) {
+        return null;
+    }
+    try {
+        return new URL(document.referrer).origin;
+    } catch (e) {
+        return null;
+    }
+};
 
 PakXFlashcardXBlock.prototype.submitGrades = function(grade) {
    var _PakXFlashcardXBlock = this;
