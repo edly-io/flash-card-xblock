@@ -2,10 +2,12 @@
 
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
+from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String, List
 
-from pakx_flashcard.utils import (resource_string, json_response)
 from xblockutils.resources import ResourceLoader
+
+from pakx_flashcard.utils import (resource_string, json_response)
 
 resource_loader = ResourceLoader(__name__)
 
@@ -106,8 +108,11 @@ class PakXFlashcardXBlock(XBlock):
                 'success': False,
                 'errors': _("Title can't be empty.")
             }
+        description = data.get('description', self.description) or ''
+        if not isinstance(description, str):
+            raise JsonHandlerError(400, _('The description must be text.'))
         self.display_name = data.get('title')
-        self.description = data.get('description', self.description).strip()
+        self.description = description.strip()
         self.cards = data.get('cards')
         return {
             'result': 'success',

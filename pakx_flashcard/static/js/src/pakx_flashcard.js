@@ -34,11 +34,11 @@ function PakXFlashcardXBlock(runtime, element, params) {
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e){
-            if (e.type === 'keypress' && e.keyCode == 13) {
+            if (e.type === 'keypress' && e.keyCode === 13) {
                 flipCardClickHandler($(this));
                 _PakXFlashcardXBlock.submitGrades(1);
                 $(this).attr('aria-expanded', function (i, attr) {
-                    return attr == 'true' ? 'false' : 'true'
+                    return attr === 'true' ? 'false' : 'true'
                 });
             }
         });
@@ -66,6 +66,9 @@ function PakXFlashcardXBlock(runtime, element, params) {
         // card, then null to hand the button back to Continue. The app answers
         // uber.footerActionAccepted, which hides the block's own button for
         // good, and uber.footerActionClicked on each tap.
+        // The messages carry no block id, so the app has one footer per unit:
+        // content rule, at most one multi-card flashcard per unit. Two would
+        // both turn on one tap, and the first to finish hands back Continue.
         var $wrapper = $('.flashcard_wrapper', element);
         var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
         if ($cards.length > 1) {
