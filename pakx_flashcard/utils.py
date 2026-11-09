@@ -1,6 +1,6 @@
 """Utilitiy functions"""
 from json import JSONEncoder
-from datetime import datetime
+from datetime import date
 from webob import Response
 
 from django.template import Context, Template
@@ -38,7 +38,7 @@ def json_response(payload):
     """
     class CustomJSONEncoder(JSONEncoder):
         def default(self, o):
-            if isinstance(o, datetime.date):
-                return dict(year=o.year, month=o.month, day=o.day)
+            if isinstance(o, date):
+                return {"year": o.year, "month": o.month, "day": o.day}
             return o.__dict__
     return Response(CustomJSONEncoder().encode(payload), content_type='application/json', charset='UTF-8')
