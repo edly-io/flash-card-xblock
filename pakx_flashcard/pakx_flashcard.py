@@ -2,10 +2,12 @@
 
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
+from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String, List
 
-from pakx_flashcard.utils import (resource_string, json_response)
 from xblockutils.resources import ResourceLoader
+
+from pakx_flashcard.utils import (resource_string, json_response)
 
 resource_loader = ResourceLoader(__name__)
 
@@ -27,6 +29,10 @@ class PakXFlashcardXBlock(XBlock):
     display_name = String(help=_('This name appears in horizontal navigation at the top of the page.'),
                           default=_('Flip Card Activities'),
                           scope=Scope.content)
+
+    description = String(help=_('A line under the title, saying what to do with the cards.'),
+                         default=_('Think of your answer, then turn the card over.'),
+                         scope=Scope.content)
 
     cards = List(help=_('List of card objects'), scope=Scope.content, default=[])
 
@@ -70,8 +76,11 @@ class PakXFlashcardXBlock(XBlock):
                                'text': {
                                    'front_label': gettext('Question'),
                                    'back_label': gettext('Answer'),
-                                   'front_hint': gettext('Tap to turn over'),
-                                   'back_hint': gettext('Tap to see the question'),
+                                   'front_hint': gettext('Turn over'),
+                                   'back_hint': gettext('Turn over'),
+                                   'next': gettext('Next card'),
+                                   # The JS fills in {current} and {total}
+                                   'count': gettext('Card {current} of {total}'),
                                }})
         return fragment
 
@@ -97,9 +106,13 @@ class PakXFlashcardXBlock(XBlock):
         if not data.get('title'):
             return {
                 'success': False,
-                'errors': _("Display name can't be empty.")
+                'errors': _("Title can't be empty.")
             }
+        description = data.get('description', self.description) or ''
+        if not isinstance(description, str):
+            raise JsonHandlerError(400, _('The description must be text.'))
         self.display_name = data.get('title')
+        self.description = description.strip()
         self.cards = data.get('cards')
         return {
             'result': 'success',
