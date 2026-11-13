@@ -161,18 +161,27 @@ PakXFlashcardEditXBlock.prototype.slideInputComponent = function (element, data)
     var $leadNone = $(_PakXFlashcardEditXBlock.SELECTOR.LEAD_NONE, INPUT_TEMPLATE);
     xmlEditor.leadText = $leadText;
     xmlEditor.leadNone = $leadNone;
-    $leadNone.change(function () {
-        $leadText.prop('disabled', this.checked);
-    });
+    // Instruction Text only does anything once the card has a .flip to carry
+    // it on, so disable the row (rather than silently ignoring it on save)
+    // until one exists; re-checked on every edit, not just a chosen layout,
+    // since an author can also paste or hand-edit the XML.
+    var updateLeadAvailability = function () {
+        var hasFlip = !!PakXFlashcardEditXBlock.cardFlip(xmlEditor.getValue()).flip;
+        $leadNone.prop('disabled', !hasFlip);
+        $leadText.prop('disabled', !hasFlip || $leadNone.prop('checked'));
+    };
+    $leadNone.change(updateLeadAvailability);
+    xmlEditor.on('change', updateLeadAvailability);
     if (data) {
         xmlEditor.setValue(data);
         var lead = PakXFlashcardEditXBlock.cardFlip(data).flip;
         lead = lead ? lead.getAttribute('data-lead') : null;
-        $leadNone.prop('checked', lead === '').change();
+        $leadNone.prop('checked', lead === '');
         $leadText.val(lead || '');
     } else {
         $(INPUT_TEMPLATE).find(_PakXFlashcardEditXBlock.SELECTOR.ACTION_BUTTONS).show()
     }
+    updateLeadAvailability();
 }
 
 PakXFlashcardEditXBlock.prototype.cancel = function (element) {

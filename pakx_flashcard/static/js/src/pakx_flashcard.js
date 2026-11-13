@@ -108,16 +108,21 @@ function PakXFlashcardXBlock(runtime, element, params) {
                     }, appOrigin);
                 }
             };
-            var showNextCard = function () {
+            var showNextCard = function (event) {
                 if (current < $cards.length - 1) {
                     showCard(current + 1);
-                    // Move focus for screen readers without the visible focus
-                    // ring: the browser draws one here because this focus()
-                    // targets a different element than the one just clicked.
+                    // Move focus for screen readers; the browser draws a ring
+                    // here because this focus() targets a different element
+                    // than the one just clicked, so suppress it for a pointer
+                    // click (event.detail > 0) or the app's footer tap (no
+                    // event). A keyboard activation (detail === 0, e.g. Enter
+                    // on the Next card button) keeps its ring: WCAG 2.4.7.
                     var $front = $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
-                    $front.addClass('flashcard-no-focus-ring')
-                        .one('blur', function () { $(this).removeClass('flashcard-no-focus-ring'); })
-                        .focus();
+                    if (!event || event.detail > 0) {
+                        $front.addClass('flashcard-no-focus-ring')
+                            .one('blur', function () { $(this).removeClass('flashcard-no-focus-ring'); });
+                    }
+                    $front.focus();
                 }
             };
             $cards.each(function () {
