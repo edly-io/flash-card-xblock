@@ -45,16 +45,15 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
 
-        // Label each face and say how to turn it. The hint repeats what the
-        // button role already tells screen readers, so it is hidden from them.
-        function addFaceText(selector, label, hint) {
+        // Say how to turn each face. The hint repeats what the button role
+        // already tells screen readers, so it is hidden from them.
+        function addFaceText(selector, hint) {
             $(selector, element).each(function () {
-                $(this).prepend($('<span class="flashcard-face-label"></span>').text(label));
                 $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
             });
         }
-        addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_label, params.text.front_hint);
-        addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_label, params.text.back_hint);
+        addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_hint);
+        addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_hint);
 
         // The parts to show one card at a time: page dots, a "Card 2 of 6"
         // line for screen readers and a Next card button. The block's CSS
@@ -71,6 +70,17 @@ function PakXFlashcardXBlock(runtime, element, params) {
         // both turn on one tap, and the first to finish hands back Continue.
         var $wrapper = $('.flashcard_wrapper', element);
         var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
+
+        // A card's data-lead attribute replaces the block's lead text while
+        // that card is showing; an empty one shows no lead for it.
+        var $lead = $('.flashcard-lead', element);
+        var blockLead = $lead.text();
+        var showLead = function (index) {
+            var cardLead = $cards.eq(index).attr('data-lead');
+            var text = cardLead === undefined ? blockLead : cardLead.trim();
+            $lead.text(text).prop('hidden', !text);
+        };
+        showLead(0);
         if ($cards.length > 1) {
             var $dots = $('<div class="flashcard-dots" aria-hidden="true"></div>');
             var $count = $('<p class="flashcard-count" aria-live="polite"></p>');
@@ -81,6 +91,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var showCard = function (index) {
                 var isLast = index === $cards.length - 1;
                 current = index;
+                showLead(index);
                 $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
                 $dots.children().each(function (i) {
                     $(this).toggleClass('flashcard-dot-done', i < index)
@@ -100,7 +111,13 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var showNextCard = function () {
                 if (current < $cards.length - 1) {
                     showCard(current + 1);
-                    $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+                    // Move focus for screen readers without the visible focus
+                    // ring: the browser draws one here because this focus()
+                    // targets a different element than the one just clicked.
+                    var $front = $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
+                    $front.addClass('flashcard-no-focus-ring')
+                        .one('blur', function () { $(this).removeClass('flashcard-no-focus-ring'); })
+                        .focus();
                 }
             };
             $cards.each(function () {

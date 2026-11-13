@@ -164,9 +164,14 @@
     outline: 2px solid var(--primary, #000);
     outline-offset: 2px;
 }
-/* "Question" / "Answer" at the top, "Tap to ..." at the bottom of each face */
-.card .front .flashcard-face-label,
-.card .back .flashcard-face-label,
+/* Unconditional (not :focus-visible-gated): some WebViews apply their own
+   native focus ring that :focus-visible can't reach, so this must win
+   against any outline regardless of which focus pseudo-class matched. */
+.card .front.flashcard-no-focus-ring,
+.card .back.flashcard-no-focus-ring {
+    outline: none !important;
+}
+/* "Turn over" at the bottom of each face */
 .card .front .flashcard-hint,
 .card .back .flashcard-hint {
     display: block;
@@ -187,7 +192,7 @@
     position: static;
     height: auto;
     border: 0;
-    flex: 0 0 auto;  /* centred between the label and the hint by margin: auto */
+    flex: 0 0 auto;  /* centred above the hint by margin: auto */
     margin: auto;
 }
 .card .front div div,
@@ -245,4 +250,8 @@
     .flip .card {
         transition: none;
     }
+}
+/* Keep an empty lead hidden even where a theme shows the lead */
+.pakx_flashcard_block .flashcard-lead[hidden] {
+    display: none !important;
 }
