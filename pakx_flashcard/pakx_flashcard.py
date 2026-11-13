@@ -74,8 +74,6 @@ class PakXFlashcardXBlock(XBlock):
         fragment.initialize_js('PakXFlashcardXBlock', {
                                'class_name': class_name,
                                'text': {
-                                   'front_label': gettext('Question'),
-                                   'back_label': gettext('Answer'),
                                    'front_hint': gettext('Turn over'),
                                    'back_hint': gettext('Turn over'),
                                    'next': gettext('Next card'),
@@ -95,6 +93,7 @@ class PakXFlashcardXBlock(XBlock):
             context={'self': self},
             i18n_service=self.i18n_service
         ))
+        fragment.add_css(resource_string('static/css/pakx_flashcard_edit.css'))
         fragment.add_javascript(resource_string(
             'static/js/src/pakx_flashcard_edit.js'))
         fragment.initialize_js('PakXFlashcardEditXBlock', {"one": "one"})

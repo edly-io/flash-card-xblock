@@ -12,6 +12,14 @@
         </span>
         <button class="static-buttons del-button">Delete Card</button>
       </div>
+      <div class="card-lead-setting">
+        <label class="card-lead-text-label">Instruction Text
+          <input class="card-lead-text" type="text" placeholder="Same as the Description">
+        </label>
+        <label class="card-lead-checkbox-label">
+          <input class="card-lead-none" type="checkbox"> No instruction text on this card
+        </label>
+      </div>
       <div class="wrapper-comp-setting">
         <span class="tip setting-help"></span>
         <div class='codemirror-editor-wrapper'>
@@ -140,7 +148,7 @@
             <label class="label setting-label" for="edit_description">Description</label>
             <input class="input setting-input edit-description" id="edit_description" value="{{ self.description }}" type="text" data-default-value="{{self.description}}">
           </div>
-          <span class="tip setting-help">A line under the title, saying what to do with the cards. Leave it empty to show none.</span>
+          <span class="tip setting-help">A line under the title, saying what to do with the cards. Leave it empty to show none. Each card can replace it with its own Instruction Text, or show none.</span>
         </li>
       </ul>
     </div>

@@ -22,6 +22,8 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
         TWO_PARAGRAPHS: '.two-paragraph',
         ACTION_BUTTONS: '.action-buttons',
         TEXT_AREA: 'textarea[name="editor"]',
+        LEAD_TEXT: '.card-lead-text',
+        LEAD_NONE: '.card-lead-none',
         ADD_SLIDE_BUTTON: '.add-slide-button',
         INPUT_TEMPLATE: 'script[type="text/html"][data-name="input-template"]',
         TWO_IMAGE_TEMPLATE: 'script[type="text/html"][data-name="images-script"]',
@@ -155,11 +157,31 @@ PakXFlashcardEditXBlock.prototype.slideInputComponent = function (element, data)
     _PakXFlashcardEditXBlock.registerButtonEvents(INPUT_TEMPLATE, elementID);
     _PakXFlashcardEditXBlock.editors[elementID] = xmlEditor
     element.append(INPUT_TEMPLATE);
+    var $leadText = $(_PakXFlashcardEditXBlock.SELECTOR.LEAD_TEXT, INPUT_TEMPLATE);
+    var $leadNone = $(_PakXFlashcardEditXBlock.SELECTOR.LEAD_NONE, INPUT_TEMPLATE);
+    xmlEditor.leadText = $leadText;
+    xmlEditor.leadNone = $leadNone;
+    // Instruction Text only does anything once the card has a .flip to carry
+    // it on, so disable the row (rather than silently ignoring it on save)
+    // until one exists; re-checked on every edit, not just a chosen layout,
+    // since an author can also paste or hand-edit the XML.
+    var updateLeadAvailability = function () {
+        var hasFlip = !!PakXFlashcardEditXBlock.cardFlip(xmlEditor.getValue()).flip;
+        $leadNone.prop('disabled', !hasFlip);
+        $leadText.prop('disabled', !hasFlip || $leadNone.prop('checked'));
+    };
+    $leadNone.change(updateLeadAvailability);
+    xmlEditor.on('change', updateLeadAvailability);
     if (data) {
         xmlEditor.setValue(data);
+        var lead = PakXFlashcardEditXBlock.cardFlip(data).flip;
+        lead = lead ? lead.getAttribute('data-lead') : null;
+        $leadNone.prop('checked', lead === '');
+        $leadText.val(lead || '');
     } else {
         $(INPUT_TEMPLATE).find(_PakXFlashcardEditXBlock.SELECTOR.ACTION_BUTTONS).show()
     }
+    updateLeadAvailability();
 }
 
 PakXFlashcardEditXBlock.prototype.cancel = function (element) {
@@ -190,7 +212,10 @@ PakXFlashcardEditXBlock.prototype.toJSON = function (form) {
     for (var key in editors) {
         // check if the property/key is defined in the object itself, not in parent
         if (editors.hasOwnProperty(key)) {
-            var cardValue = editors[key].getValue().trim();
+            var cardValue = PakXFlashcardEditXBlock.withLead(
+                editors[key].getValue().trim(),
+                editors[key].leadNone.prop('checked') ? '' : editors[key].leadText.val().trim() || null
+            );
             if (cardValue !== "") {
                 pages.push(cardValue);
             }
@@ -222,4 +247,26 @@ PakXFlashcardEditXBlock.prototype.updateView = function (cb) {
             cb(res);
         }
     });
+}
+
+// Parse a card's HTML without running it, and find its .flip element.
+PakXFlashcardEditXBlock.cardFlip = function (html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    return {doc: doc, flip: doc.querySelector('.flip')};
+}
+
+// Set the card's data-lead: null removes it (the card uses the Description),
+// '' shows no lead, any other text replaces the Description on that card.
+// The HTML is only rewritten when the attribute changes.
+PakXFlashcardEditXBlock.withLead = function (html, lead) {
+    var card = PakXFlashcardEditXBlock.cardFlip(html);
+    if (!card.flip || card.flip.getAttribute('data-lead') === lead) {
+        return html;
+    }
+    if (lead === null) {
+        card.flip.removeAttribute('data-lead');
+    } else {
+        card.flip.setAttribute('data-lead', lead);
+    }
+    return card.doc.body.innerHTML.trim();
 }
