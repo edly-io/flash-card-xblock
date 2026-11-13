@@ -177,13 +177,9 @@
     display: block;
     flex: none;
     padding: 0 25px;
-    color: #707070;
+    color: inherit;
     font-size: 14px;
     line-height: 16px;
-}
-.card .front .flashcard-hint,
-.card .back .flashcard-hint {
-    color: inherit;
 }
 .card .front div,
 .card .back div {
