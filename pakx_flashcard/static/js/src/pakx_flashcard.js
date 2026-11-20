@@ -22,6 +22,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         // Overridden in multi-card setup to track flipped state.
         var onCardFlipped = function() {};
+        // In multi-card mode submitGrades is deferred until all cards are flipped.
+        var _submitGradeOnFlip = true;
 
         var showLead = function(index) {
             var cardLead = $cards.eq(index).attr('data-lead');
@@ -41,14 +43,14 @@ function PakXFlashcardXBlock(runtime, element, params) {
         }
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
-            if (flipCardClickHandler($(this))) {
+            if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
                 _PakXFlashcardXBlock.submitGrades(1);
             }
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e) {
             if (e.type === 'keypress' && e.keyCode === 13) {
-                if (flipCardClickHandler($(this))) {
+                if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
                     _PakXFlashcardXBlock.submitGrades(1);
                 }
             }
@@ -78,6 +80,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var current = 0;
             var flipped = new Set();
             var appOrigin = PakXFlashcardXBlock.appOrigin();
+            // Don't submit grade on individual flips; defer to _checkComplete.
+            _submitGradeOnFlip = false;
             // Activate paged layout.
             $(element).addClass('fc-paged');
 
@@ -117,18 +121,29 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var _checkComplete = function() {
                 if (_completedSent || flipped.size < $cards.length) { return; }
                 _completedSent = true;
+                _PakXFlashcardXBlock.submitGrades(1);
                 _postToApp({ type: 'plugin.completed', payload: { correct: true } });
                 $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
             };
 
             // If previously completed, restore all cards to their flipped state.
+            // Transition is disabled during restore so no flip animation runs on load.
             if (params.completed) {
                 $cards.each(function(i) {
                     flipped.add(i);
                     var $card = $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD);
+                    $card[0].style.transition = 'none';
                     $card.addClass('flipped');
                     $(this).find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
                     $(this).find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+                });
+                // Re-enable transitions after two frames so they work for future flips
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        $cards.each(function() {
+                            $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD)[0].style.transition = '';
+                        });
+                    });
                 });
             }
 

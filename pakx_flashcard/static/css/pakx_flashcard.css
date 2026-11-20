@@ -265,12 +265,14 @@
     max-height: 360px !important;
 }
 
-/* Paged mode: center card face content properly */
+/* Paged mode: center card face content properly.
+   overflow: hidden prevents face-level scroll; the inner > div carries overflow-y: auto */
 .fc-paged .flip .card .front,
 .fc-paged .flip .card .back {
     align-items: center;
     padding: 24px;
     gap: 12px;
+    overflow: hidden;
 }
 /* Content div grows to fill space and centers the image */
 .fc-paged .flip .card .front > div,
