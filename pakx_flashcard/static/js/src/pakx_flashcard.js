@@ -77,8 +77,6 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var current = 0;
             var flipped = new Set();
             var appOrigin = PakXFlashcardXBlock.appOrigin();
-            var appHasNext = false;
-
             // Activate paged layout.
             $(element).addClass('fc-paged');
 
@@ -142,13 +140,6 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
                 $btnPrev.prop('disabled', index === 0);
                 _applyNextLock(index);
-
-                // Let the app's footer drive "Next card"; hand back Continue on
-                // the last card so the learner can proceed after finishing.
-                _postToApp({
-                    type: 'plugin.footerAction',
-                    payload: isLast ? null : { label: params.text.next }
-                });
             };
 
             var showNextCard = function(event) {
@@ -185,20 +176,6 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
             $btnPrev.click(showPrevCard);
             $btnNext.click(showNextCard);
-
-            // App footer integration: app takes over the Next button;
-            // uber.footerActionClicked drives forward navigation.
-            if (appOrigin) {
-                window.addEventListener('message', function(evt) {
-                    if (evt.source !== window.parent || evt.origin !== appOrigin || !evt.data) { return; }
-                    if (evt.data.type === 'uber.footerActionAccepted') {
-                        appHasNext = true;
-                        $btnNext.prop('hidden', true);
-                    } else if (evt.data.type === 'uber.footerActionClicked') {
-                        showNextCard();
-                    }
-                });
-            }
 
             showCard(0);
         }
