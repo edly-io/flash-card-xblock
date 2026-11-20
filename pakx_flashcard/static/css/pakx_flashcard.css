@@ -252,16 +252,17 @@
     display: block;
 }
 
-/* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full) */
+/* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full).
+   !important overrides .flip.small and .flip.medium base rules. */
 .fc-paged .flip .card,
 .fc-paged .flip.small .card,
 .fc-paged .flip.medium .card {
-    width: 100%;
-    max-width: 100%;
-    min-width: unset;
-    height: 360px;
-    min-height: 360px;
-    max-height: 360px;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 360px !important;
+    min-height: 360px !important;
+    max-height: 360px !important;
 }
 
 /* Show dots */
