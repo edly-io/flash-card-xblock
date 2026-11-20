@@ -208,14 +208,24 @@
 }
 
 /* The title and description (the platform already shows the unit title),
-   and the page dots, card count and Next card button the JS adds. Hidden
+   and the page dots and Next card button the JS adds. Hidden
    here, where every card shows; a theme that pages the cards shows them. */
 .pakx_flashcard_block .flashcard-title,
 .pakx_flashcard_block .flashcard-lead,
 .pakx_flashcard_block .flashcard-dots,
-.pakx_flashcard_block .flashcard-count,
 .pakx_flashcard_block .flashcard-next {
-    display: none;
+    display: none;}
+
+/* ── Design tokens ─────────────────────────────────────────────────────── */
+
+.pakx_flashcard_block {
+    --fc-btn-size: 36px;
+    --fc-color-surface: #f3f3f3;
+    --fc-color-surface-hover: #e0e0e0;
+    --fc-color-text: #000000;
+    --fc-color-accent: #000000;
+    --fc-color-disabled: #a6a6a6;
+    --fc-color-done: #5c5c5c;
 }
 
 /* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
@@ -228,19 +238,17 @@
     display: block;
 }
 
-/* Show dots and count */
+/* Show dots */
 .fc-paged .flashcard-dots {
     display: flex;
-    justify-content: center;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
     margin: 0;
-}
-.fc-paged .flashcard-count {
-    display: block;
-    text-align: center;
-    font-size: 13px;
-    color: var(--grey-tint3, #888);
-    margin: 4px 0 0;
+    padding: 0;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 /* ── Navigation bar ────────────────────────────────────────────────────── */
@@ -257,76 +265,105 @@
 .fc-paged .fc-nav {
     display: flex;
 }
-.fc-nav-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    min-width: 0;
-}
 
 /* Prev / Next buttons */
 .fc-btn-prev,
 .fc-btn-next {
     flex: none;
-    width: 40px;
-    height: 40px;
+    width: var(--fc-btn-size);
+    height: var(--fc-btn-size);
+    min-width: var(--fc-btn-size);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: none;
-    border: 1.5px solid var(--primary, #000);
+    background: var(--fc-color-surface);
+    border: none;
     border-radius: 50%;
     cursor: pointer;
-    color: var(--primary, #000);
-    font-size: 18px;
-    line-height: 1;
-    transition: opacity 0.15s, background 0.15s;
+    color: var(--fc-color-text);
+    transition: background 120ms cubic-bezier(0.4, 0, 0.2, 1), color 120ms cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
 }
-.fc-btn-prev::before { content: '←'; }
-.fc-btn-next::before { content: '→'; }
-
-.fc-btn-prev:hover:not(:disabled),
-.fc-btn-next:hover:not(:disabled):not(.fc-locked) {
-    background: var(--primary, #000);
-    color: #fff;
+.fc-btn-prev:focus:not(:focus-visible),
+.fc-btn-next:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+.fc-btn-prev:focus-visible,
+.fc-btn-next:focus-visible {
+    outline: 2px solid var(--fc-color-accent);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+.fc-btn-prev:not(:disabled):hover,
+.fc-btn-next:not(:disabled):hover {
+    background: var(--fc-color-surface-hover);
 }
 
 /* Prev disabled (first card) */
 .fc-btn-prev:disabled {
-    opacity: 0.25;
-    cursor: default;
+    color: var(--fc-color-disabled);
+    cursor: not-allowed;
 }
 
 /* Next disabled (last card) */
 .fc-btn-next:disabled {
-    opacity: 0.25;
-    cursor: default;
+    color: var(--fc-color-disabled);
+    cursor: not-allowed;
 }
 
-/* Next locked — card not yet flipped; visually locked like kc-locked */
+/* Next locked — card not yet flipped */
 .fc-btn-next.fc-locked {
-    opacity: 0.35;
+    color: var(--fc-color-disabled);
+    pointer-events: none;
     cursor: not-allowed;
-    border-style: dashed;
 }
 
 /* ── Dot indicators ────────────────────────────────────────────────────── */
 
-.flashcard-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--grey-tint2, #ccc);
-    transition: background 0.2s, transform 0.2s;
+.fc-paged .flashcard-dots li {
+    display: flex;
+    align-items: center;
 }
-.flashcard-dot.flashcard-dot-current {
-    background: var(--primary, #000);
-    transform: scale(1.25);
+.fc-paged .flashcard-dots button {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    border: none;
+    background: var(--fc-color-disabled);
+    cursor: default;
+    padding: 0;
+    transition: background 120ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
 }
-.flashcard-dot.flashcard-dot-done {
-    background: var(--success, #29cb97);
+.fc-paged .flashcard-dots button:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+.fc-paged .flashcard-dots button:focus-visible {
+    outline: 2px solid var(--fc-color-accent);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+.fc-paged .flashcard-dots button::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+}
+.fc-paged .flashcard-dots button.active,
+.fc-paged .flashcard-dots button[aria-current="step"] {
+    background: var(--fc-color-accent);
+}
+.fc-paged .flashcard-dots button.done:not(.active) {
+    background: var(--fc-color-done);
 }
 
 .hide {

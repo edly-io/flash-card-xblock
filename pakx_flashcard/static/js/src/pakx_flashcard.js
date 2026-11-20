@@ -90,13 +90,15 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var $btnPrev = $('.fc-btn-prev', element);
             var $btnNext = $('.fc-btn-next', element);
             var $dots = $('.flashcard-dots', element);
-            var $count = $('.flashcard-count', element);
 
             $btnPrev.attr('aria-label', params.text.prev || 'Previous card');
             $btnNext.attr('aria-label', params.text.next || 'Next card');
 
-            // Build one dot per card.
-            $cards.each(function() { $dots.append('<span class="flashcard-dot"></span>'); });
+            // Build one dot per card (ol > li > button).
+            $cards.each(function(i) {
+                var $btn = $('<button type="button"></button>').attr('aria-label', 'Card ' + (i + 1));
+                $dots.append($('<li></li>').append($btn));
+            });
 
             var _postToApp = function(message) {
                 if (appOrigin) { window.parent.postMessage(message, appOrigin); }
@@ -131,16 +133,17 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
                 $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
 
-                // Dots: current = active, flipped-but-not-current = done.
-                $dots.children().each(function(i) {
-                    $(this)
-                        .toggleClass('flashcard-dot-current', i === index)
-                        .toggleClass('flashcard-dot-done', flipped.has(i) && i !== index);
+                // Dots: current = active + aria-current, flipped-but-not-current = done.
+                $dots.find('button').each(function(i) {
+                    var isActive = i === index;
+                    var isDone = flipped.has(i) && !isActive;
+                    $(this).toggleClass('active', isActive).toggleClass('done', isDone);
+                    if (isActive) {
+                        $(this).attr('aria-current', 'step');
+                    } else {
+                        $(this).removeAttr('aria-current');
+                    }
                 });
-
-                $count.text(params.text.count
-                    .replace('{current}', index + 1)
-                    .replace('{total}', $cards.length));
 
                 $btnPrev.prop('disabled', index === 0);
                 _applyNextLock(index);
@@ -180,7 +183,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
             onCardFlipped = function(index) {
                 flipped.add(index);
                 // Update the dot for the flipped card immediately.
-                $dots.children().eq(index).toggleClass('flashcard-dot-done', index !== current);
+                $dots.find('button').eq(index).toggleClass('done', index !== current);
                 _applyNextLock(current);
                 _checkComplete();
             };

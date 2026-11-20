@@ -7,11 +7,12 @@
         {% endfor %}
     </div>
     <nav class="fc-nav" aria-label="Card navigation">
-        <button type="button" class="fc-btn-prev" aria-label="Previous card" disabled></button>
-        <div class="fc-nav-center">
-            <div class="flashcard-dots" aria-hidden="true"></div>
-            <p class="flashcard-count" aria-live="polite"></p>
-        </div>
-        <button type="button" class="fc-btn-next" aria-label="Next card"></button>
+        <button type="button" class="fc-btn-prev" aria-label="Previous card" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.41 7.33333H4.70333L8.51667 2H6.87667L2.59 8L6.87667 14H8.51667L4.70333 8.66667H13.41V7.33333Z" fill="currentColor"/></svg>
+        </button>
+        <ol class="flashcard-dots" aria-label="Cards"></ol>
+        <button type="button" class="fc-btn-next" aria-label="Next card">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8.91667 2H7.25L11.25 7.33333H2.58333V8.66667H11.25L7.25 14H8.91667L13.4167 8L8.91667 2Z" fill="currentColor"/></svg>
+        </button>
     </nav>
 </div>
