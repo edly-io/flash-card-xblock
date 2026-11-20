@@ -239,12 +239,29 @@
 
 /* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
 
-/* Show one card at a time */
+/* Show one card at a time, full-width */
+.fc-paged .flashcard_wrapper {
+    max-width: 100%;
+    margin: 0;
+}
 .fc-paged .flashcard_wrapper .flip {
     display: none;
+    width: 100%;
 }
 .fc-paged .flashcard_wrapper .flip.flashcard-current {
     display: block;
+}
+
+/* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full) */
+.fc-paged .flip .card,
+.fc-paged .flip.small .card,
+.fc-paged .flip.medium .card {
+    width: 100%;
+    max-width: 100%;
+    min-width: unset;
+    height: 360px;
+    min-height: 360px;
+    max-height: 360px;
 }
 
 /* Show dots */
