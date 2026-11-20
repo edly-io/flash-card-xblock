@@ -265,6 +265,35 @@
     max-height: 360px !important;
 }
 
+/* Paged mode: center card face content properly */
+.fc-paged .flip .card .front,
+.fc-paged .flip .card .back {
+    align-items: center;
+    padding: 24px;
+    gap: 12px;
+}
+/* Content div grows to fill space and centers the image */
+.fc-paged .flip .card .front > div,
+.fc-paged .flip .card .back > div {
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+/* Image fills the card, centered */
+.fc-paged .flip .card img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    margin: 0 !important;
+    display: block;
+}
+
 /* Show dots */
 .fc-paged .flashcard-dots {
     display: flex;
