@@ -3,7 +3,7 @@
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
-from xblock.fields import Scope, String, List
+from xblock.fields import Boolean, Scope, String, List
 
 from xblockutils.resources import ResourceLoader
 
@@ -36,10 +36,22 @@ class PakXFlashcardXBlock(XBlock):
 
     cards = List(help=_('List of card objects'), scope=Scope.content, default=[])
 
+    all_cards_seen = Boolean(
+        help=_('True once the learner has flipped every card at least once.'),
+        scope=Scope.user_state,
+        default=False
+    )
+
     @property
     def i18n_service(self):
         """ Obtains translation service """
         return self.runtime.service(self, 'i18n')
+
+    @XBlock.json_handler
+    def mark_all_seen(self, data, suffix=''):  # pylint: disable=unused-argument
+        """Mark that the learner has flipped every card at least once."""
+        self.all_cards_seen = True
+        return {'result': 'success'}
 
     @XBlock.json_handler
     def submit_grade(self, data, suffix=''):  # pylint: disable=unused-argument
@@ -73,13 +85,12 @@ class PakXFlashcardXBlock(XBlock):
         gettext = self.i18n_service.gettext
         fragment.initialize_js('PakXFlashcardXBlock', {
                                'class_name': class_name,
+                               'completed': self.all_cards_seen,
                                'text': {
                                    'front_hint': gettext('Turn over'),
                                    'back_hint': gettext('Turn over'),
                                    'next': gettext('Next card'),
                                    'prev': gettext('Previous card'),
-                                   # The JS fills in {current} and {total}
-                                   'count': gettext('Card {current} of {total}'),
                                }})
         return fragment
 

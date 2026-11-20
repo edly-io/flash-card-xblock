@@ -3,7 +3,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
     var _PakXFlashcardXBlock = this;
 
     _PakXFlashcardXBlock.URL = {
-        SUBMIT_GRADE: runtime.handlerUrl(element, 'submit_grade')
+        SUBMIT_GRADE: runtime.handlerUrl(element, 'submit_grade'),
+        MARK_ALL_SEEN: runtime.handlerUrl(element, 'mark_all_seen')
     };
 
     _PakXFlashcardXBlock.SELECTOR = {
@@ -112,12 +113,18 @@ function PakXFlashcardXBlock(runtime, element, params) {
             };
 
             // Fire plugin.completed once every card has been flipped at least once.
-            var _completedSent = false;
+            var _completedSent = params.completed || false;
             var _checkComplete = function() {
                 if (_completedSent || flipped.size < $cards.length) { return; }
                 _completedSent = true;
                 _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
             };
+
+            // If previously completed, pre-populate flipped so nav is fully enabled.
+            if (params.completed) {
+                for (var i = 0; i < $cards.length; i++) { flipped.add(i); }
+            }
 
             var showCard = function(index) {
                 var isLast = index === $cards.length - 1;
