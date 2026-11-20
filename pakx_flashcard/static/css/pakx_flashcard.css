@@ -223,7 +223,8 @@
 .pakx_flashcard_block .flashcard-lead,
 .pakx_flashcard_block .flashcard-dots,
 .pakx_flashcard_block .flashcard-next {
-    display: none;}
+    display: none;
+}
 
 /* ── Design tokens ─────────────────────────────────────────────────────── */
 

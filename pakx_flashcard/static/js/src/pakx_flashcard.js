@@ -148,7 +148,6 @@ function PakXFlashcardXBlock(runtime, element, params) {
             }
 
             var showCard = function(index) {
-                var isLast = index === $cards.length - 1;
                 current = index;
                 showLead(index);
 
