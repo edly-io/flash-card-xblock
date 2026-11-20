@@ -48,8 +48,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
             }
         });
 
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e) {
-            if (e.type === 'keypress' && e.keyCode === 13) {
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keydown(function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
                 if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
                     _PakXFlashcardXBlock.submitGrades(1);
                 }
@@ -93,8 +93,12 @@ function PakXFlashcardXBlock(runtime, element, params) {
             $btnNext.attr('aria-label', params.text.next || 'Next card');
 
             // Build one dot per card (ol > li > button).
+            // Dots are progress indicators, not navigation — hidden from AT and
+            // keyboard focus so screen readers only hear the card count from the
+            // aria-label on the <ol>.
             $cards.each(function(i) {
-                var $btn = $('<button type="button"></button>').attr('aria-label', 'Card ' + (i + 1));
+                var $btn = $('<button type="button"></button>')
+                    .attr({'aria-label': 'Card ' + (i + 1), 'tabindex': '-1', 'aria-hidden': 'true'});
                 $dots.append($('<li></li>').append($btn));
             });
 
@@ -123,7 +127,10 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 _completedSent = true;
                 _PakXFlashcardXBlock.submitGrades(1);
                 _postToApp({ type: 'plugin.completed', payload: { correct: true } });
-                $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
+                $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({})).fail(function() {
+                    // Persist failure is non-fatal: grade and plugin.completed already sent.
+                    // On next load params.completed will be false and revisit re-animates cards.
+                });
             };
 
             // If previously completed, restore all cards to their flipped state.
