@@ -215,6 +215,117 @@
     display: none;
 }
 
+/* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
+
+/* Show one card at a time */
+.fc-paged .flashcard_wrapper .flip {
+    display: none;
+}
+.fc-paged .flashcard_wrapper .flip.flashcard-current {
+    display: block;
+}
+
+/* Show dots and count */
+.fc-paged .flashcard-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+}
+.fc-paged .flashcard-count {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: var(--grey-tint3, #888);
+    margin: 4px 0 0;
+}
+
+/* ── Navigation bar ────────────────────────────────────────────────────── */
+
+.fc-nav {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 460px;
+    margin: 12px auto 0;
+    padding: 0 4px;
+    gap: 8px;
+}
+.fc-paged .fc-nav {
+    display: flex;
+}
+.fc-nav-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Prev / Next buttons */
+.fc-btn-prev,
+.fc-btn-next {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1.5px solid var(--primary, #000);
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--primary, #000);
+    font-size: 18px;
+    line-height: 1;
+    transition: opacity 0.15s, background 0.15s;
+    padding: 0;
+}
+.fc-btn-prev::before { content: '←'; }
+.fc-btn-next::before { content: '→'; }
+
+.fc-btn-prev:hover:not(:disabled),
+.fc-btn-next:hover:not(:disabled):not(.fc-locked) {
+    background: var(--primary, #000);
+    color: #fff;
+}
+
+/* Prev disabled (first card) */
+.fc-btn-prev:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+/* Next disabled (last card) */
+.fc-btn-next:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+/* Next locked — card not yet flipped; visually locked like kc-locked */
+.fc-btn-next.fc-locked {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+/* ── Dot indicators ────────────────────────────────────────────────────── */
+
+.flashcard-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--grey-tint2, #ccc);
+    transition: background 0.2s, transform 0.2s;
+}
+.flashcard-dot.flashcard-dot-current {
+    background: var(--primary, #000);
+    transform: scale(1.25);
+}
+.flashcard-dot.flashcard-dot-done {
+    background: var(--success, #29cb97);
+}
+
 .hide {
     display: none;
 }

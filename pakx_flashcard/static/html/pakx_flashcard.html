@@ -6,4 +6,12 @@
         {{ card | safe }}
         {% endfor %}
     </div>
+    <nav class="fc-nav" aria-label="Card navigation">
+        <button type="button" class="fc-btn-prev" aria-label="Previous card" disabled></button>
+        <div class="fc-nav-center">
+            <div class="flashcard-dots" aria-hidden="true"></div>
+            <p class="flashcard-count" aria-live="polite"></p>
+        </div>
+        <button type="button" class="fc-btn-next" aria-label="Next card"></button>
+    </nav>
 </div>

@@ -77,6 +77,7 @@ class PakXFlashcardXBlock(XBlock):
                                    'front_hint': gettext('Turn over'),
                                    'back_hint': gettext('Turn over'),
                                    'next': gettext('Next card'),
+                                   'prev': gettext('Previous card'),
                                    # The JS fills in {current} and {total}
                                    'count': gettext('Card {current} of {total}'),
                                }})
