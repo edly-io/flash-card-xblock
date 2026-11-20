@@ -281,7 +281,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    overflow: hidden;
+    overflow-y: auto;
 }
 /* Image fills the card, centered */
 .fc-paged .flip .card img {
