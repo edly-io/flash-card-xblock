@@ -121,9 +121,15 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
             };
 
-            // If previously completed, pre-populate flipped so nav is fully enabled.
+            // If previously completed, restore all cards to their flipped state.
             if (params.completed) {
-                for (var i = 0; i < $cards.length; i++) { flipped.add(i); }
+                $cards.each(function(i) {
+                    flipped.add(i);
+                    var $card = $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD);
+                    $card.addClass('flipped');
+                    $(this).find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+                    $(this).find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+                });
             }
 
             var showCard = function(index) {
