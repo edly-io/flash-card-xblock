@@ -64,7 +64,9 @@ function PakXFlashcardXBlock(runtime, element, params) {
         // already tells screen readers, so it is hidden from them.
         function addFaceText(selector, hint) {
             $(selector, element).each(function() {
-                $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
+                if (!$(this).find('.flashcard-hint').length) {
+                    $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
+                }
             });
         }
         addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_hint);
