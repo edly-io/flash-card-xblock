@@ -30,31 +30,26 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         function flipCardClickHandler(cardItem) {
             var $card = cardItem.find(_PakXFlashcardXBlock.SELECTOR.CARD);
-            $card.toggleClass('flipped');
-            if ($card.hasClass('flipped')) {
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).focus();
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
-            } else {
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
-            }
+            if ($card.hasClass('flipped')) { return false; }  // one-way only
+            $card.addClass('flipped');
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).focus();
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
             onCardFlipped($cards.index(cardItem));
+            return true;
         }
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
-            flipCardClickHandler($(this));
-            _PakXFlashcardXBlock.submitGrades(1);
+            if (flipCardClickHandler($(this))) {
+                _PakXFlashcardXBlock.submitGrades(1);
+            }
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e) {
             if (e.type === 'keypress' && e.keyCode === 13) {
-                flipCardClickHandler($(this));
-                _PakXFlashcardXBlock.submitGrades(1);
-                $(this).attr('aria-expanded', function(i, attr) {
-                    return attr === 'true' ? 'false' : 'true';
-                });
+                if (flipCardClickHandler($(this))) {
+                    _PakXFlashcardXBlock.submitGrades(1);
+                }
             }
         });
 
