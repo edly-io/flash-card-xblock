@@ -91,6 +91,8 @@ class PakXFlashcardXBlock(XBlock):
                                    'back_hint': gettext('Turn over'),
                                    'next': gettext('Next card'),
                                    'prev': gettext('Previous card'),
+                                   'card_label': gettext('Card'),
+                                   'of_label': gettext('of'),
                                }})
         return fragment
 

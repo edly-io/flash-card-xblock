@@ -387,41 +387,30 @@
     display: flex;
     align-items: center;
 }
-.fc-paged .flashcard-dots button {
+.fc-paged .flashcard-dots .fc-dot {
     width: 6px;
     height: 6px;
     border-radius: 3px;
-    border: none;
     background: var(--fc-color-disabled);
-    cursor: default;
-    padding: 0;
+    display: inline-block;
     transition: background 120ms cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    outline: none;
-    box-shadow: none;
-    -webkit-appearance: none;
-    appearance: none;
 }
-.fc-paged .flashcard-dots button:focus:not(:focus-visible) {
-    outline: none;
-    box-shadow: none;
-}
-.fc-paged .flashcard-dots button:focus-visible {
-    outline: 2px solid var(--fc-color-accent);
-    outline-offset: 3px;
-    box-shadow: none;
-}
-.fc-paged .flashcard-dots button::after {
-    content: "";
-    position: absolute;
-    inset: -8px;
-}
-.fc-paged .flashcard-dots button.active,
-.fc-paged .flashcard-dots button[aria-current="step"] {
+.fc-paged .flashcard-dots .fc-dot.active,
+.fc-paged .flashcard-dots .fc-dot[aria-current="step"] {
     background: var(--fc-color-accent);
 }
-.fc-paged .flashcard-dots button.done:not(.active) {
+.fc-paged .flashcard-dots .fc-dot.done:not(.active) {
     background: var(--fc-color-done);
+}
+
+/* Visually-hidden live region that announces card position to screen readers. */
+.fc-card-count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
 
 .hide {

@@ -25,6 +25,12 @@ function PakXFlashcardXBlock(runtime, element, params) {
         // In multi-card mode submitGrades is deferred until all cards are flipped.
         var _submitGradeOnFlip = true;
 
+        // Origin shared by both single-card and multi-card paths.
+        var appOrigin = PakXFlashcardXBlock.appOrigin();
+        var _postToApp = function(message) {
+            if (appOrigin) { window.parent.postMessage(message, appOrigin); }
+        };
+
         var showLead = function(index) {
             var cardLead = $cards.eq(index).attr('data-lead');
             var text = cardLead === undefined ? blockLead : cardLead.trim();
@@ -42,16 +48,24 @@ function PakXFlashcardXBlock(runtime, element, params) {
             return true;
         }
 
+        // Single-card: grade + plugin.completed + mark_all_seen after XHR succeeds.
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
             if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
-                _PakXFlashcardXBlock.submitGrades(1);
+                _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                    _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                    $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
+                });
             }
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keydown(function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
                 if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
-                    _PakXFlashcardXBlock.submitGrades(1);
+                    _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                        _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                        $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
+                    });
                 }
             }
         });
@@ -72,6 +86,20 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         showLead(0);
 
+        // Single-card revisit restore: show the back face without animation.
+        if ($cards.length === 1 && params.completed) {
+            var $cardEl = $cards.first().find(_PakXFlashcardXBlock.SELECTOR.CARD);
+            $cardEl[0].style.transition = 'none';
+            $cardEl.addClass('flipped');
+            $cards.first().find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+            $cards.first().find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    $cardEl[0].style.transition = '';
+                });
+            });
+        }
+
         // ── Multi-card navigation ─────────────────────────────────────────────
         // Shows one card at a time, with prev/next buttons and dot indicators.
         // Next is locked until the current card is flipped. plugin.completed
@@ -79,7 +107,6 @@ function PakXFlashcardXBlock(runtime, element, params) {
         if ($cards.length > 1) {
             var current = 0;
             var flipped = new Set();
-            var appOrigin = PakXFlashcardXBlock.appOrigin();
             // Don't submit grade on individual flips; defer to _checkComplete.
             _submitGradeOnFlip = false;
             // Activate paged layout.
@@ -88,48 +115,39 @@ function PakXFlashcardXBlock(runtime, element, params) {
             var $btnPrev = $('.fc-btn-prev', element);
             var $btnNext = $('.fc-btn-next', element);
             var $dots = $('.flashcard-dots', element);
+            var cardLabel = (params.text && params.text.card_label) ? params.text.card_label : 'Card';
+            var ofLabel   = (params.text && params.text.of_label)   ? params.text.of_label   : 'of';
 
             $btnPrev.attr('aria-label', params.text.prev || 'Previous card');
             $btnNext.attr('aria-label', params.text.next || 'Next card');
 
-            // Build one dot per card (ol > li > button).
+            // Visually-hidden live region announces card position to screen readers.
+            var $liveCount = $('<span class="fc-card-count"></span>')
+                .attr({'aria-live': 'polite', 'aria-atomic': 'true'});
+            $(element).append($liveCount);
+
+            // Build one dot per card (ol > li > span).
             // Dots are progress indicators, not navigation — hidden from AT and
             // keyboard focus so screen readers only hear the card count from the
-            // aria-label on the <ol>.
-            $cards.each(function(i) {
-                var $btn = $('<button type="button"></button>')
-                    .attr({'aria-label': 'Card ' + (i + 1), 'tabindex': '-1', 'aria-hidden': 'true'});
-                $dots.append($('<li></li>').append($btn));
+            // aria-live region.
+            $cards.each(function() {
+                var $dot = $('<span class="fc-dot"></span>').attr('aria-hidden', 'true');
+                $dots.append($('<li></li>').append($dot));
             });
 
-            var _postToApp = function(message) {
-                if (appOrigin) { window.parent.postMessage(message, appOrigin); }
-            };
-
-            // Lock or unlock the next button for the given card index.
-            var _applyNextLock = function(index) {
-                var isLast = index === $cards.length - 1;
-                var isFlipped = flipped.has(index);
-                if (isLast) {
-                    $btnNext.prop('disabled', true).removeClass('fc-locked').removeAttr('aria-disabled');
-                } else if (isFlipped) {
-                    $btnNext.prop('disabled', false).removeClass('fc-locked').removeAttr('aria-disabled');
-                } else {
-                    // Clickable but visually locked — mirrors microlearning kc-locked.
-                    $btnNext.prop('disabled', false).addClass('fc-locked').attr('aria-disabled', 'true');
-                }
-            };
-
             // Fire plugin.completed once every card has been flipped at least once.
+            // plugin.completed and mark_all_seen run after submitGrades XHR succeeds
+            // so the app's completion poll finds the grade already saved.
             var _completedSent = params.completed || false;
             var _checkComplete = function() {
                 if (_completedSent || flipped.size < $cards.length) { return; }
                 _completedSent = true;
-                _PakXFlashcardXBlock.submitGrades(1);
-                _postToApp({ type: 'plugin.completed', payload: { correct: true } });
-                $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({})).fail(function() {
-                    // Persist failure is non-fatal: grade and plugin.completed already sent.
-                    // On next load params.completed will be false and revisit re-animates cards.
+                _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                    _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                    $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({})).fail(function() {
+                        // Persist failure is non-fatal: grade and plugin.completed already sent.
+                        // On next load params.completed will be false and revisit re-animates cards.
+                    });
                 });
             };
 
@@ -154,6 +172,20 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 });
             }
 
+            // Lock or unlock the next button for the given card index.
+            var _applyNextLock = function(index) {
+                var isLast = index === $cards.length - 1;
+                var isFlipped = flipped.has(index);
+                if (isLast) {
+                    $btnNext.prop('disabled', true).removeClass('fc-locked').removeAttr('aria-disabled');
+                } else if (isFlipped) {
+                    $btnNext.prop('disabled', false).removeClass('fc-locked').removeAttr('aria-disabled');
+                } else {
+                    // Clickable but visually locked — mirrors microlearning kc-locked.
+                    $btnNext.prop('disabled', false).addClass('fc-locked').attr('aria-disabled', 'true');
+                }
+            };
+
             var showCard = function(index) {
                 current = index;
                 showLead(index);
@@ -161,7 +193,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
 
                 // Dots: current = active + aria-current, flipped-but-not-current = done.
-                $dots.find('button').each(function(i) {
+                $dots.find('.fc-dot').each(function(i) {
                     var isActive = i === index;
                     var isDone = flipped.has(i) && !isActive;
                     $(this).toggleClass('active', isActive).toggleClass('done', isDone);
@@ -171,6 +203,9 @@ function PakXFlashcardXBlock(runtime, element, params) {
                         $(this).removeAttr('aria-current');
                     }
                 });
+
+                // Update live region so screen readers announce card position on navigation.
+                $liveCount.text(cardLabel + ' ' + (index + 1) + ' ' + ofLabel + ' ' + $cards.length);
 
                 $btnPrev.prop('disabled', index === 0);
                 _applyNextLock(index);
@@ -203,7 +238,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
             onCardFlipped = function(index) {
                 flipped.add(index);
                 // Update the dot for the flipped card immediately.
-                $dots.find('button').eq(index).toggleClass('done', index !== current);
+                $dots.find('.fc-dot').eq(index).toggleClass('done', index !== current);
                 _applyNextLock(current);
                 _checkComplete();
             };
@@ -231,7 +266,7 @@ PakXFlashcardXBlock.appOrigin = function() {
 
 PakXFlashcardXBlock.prototype.submitGrades = function(grade) {
     var _PakXFlashcardXBlock = this;
-    $.post(_PakXFlashcardXBlock.URL.SUBMIT_GRADE, JSON.stringify({'value': grade})).done(function(response) {
+    return $.post(_PakXFlashcardXBlock.URL.SUBMIT_GRADE, JSON.stringify({'value': grade})).done(function(response) {
         if (response.result === 'success') {
             // FOR NOW NOTHING TO SHOW HERE
         }
