@@ -69,6 +69,9 @@
 .card div[aria-hidden="true"] > div {
     display: none;
 }
+.card div[aria-hidden="true"] .flashcard-hint {
+    display: none;
+}
 
 .card div span {
     display: table-cell;
@@ -171,6 +174,15 @@
 .card .back.flashcard-no-focus-ring {
     outline: none !important;
 }
+/* Hide "Turn over" on the back once the card is flipped (one-way flip) */
+.card.flipped .back .flashcard-hint {
+    display: none;
+}
+/* Flipped card is no longer interactive */
+.card.flipped {
+    cursor: default;
+}
+
 /* "Turn over" at the bottom of each face */
 .card .front .flashcard-hint,
 .card .back .flashcard-hint {
@@ -205,14 +217,200 @@
 }
 
 /* The title and description (the platform already shows the unit title),
-   and the page dots, card count and Next card button the JS adds. Hidden
+   and the page dots and navigation bar the JS adds. Hidden
    here, where every card shows; a theme that pages the cards shows them. */
 .pakx_flashcard_block .flashcard-title,
 .pakx_flashcard_block .flashcard-lead,
-.pakx_flashcard_block .flashcard-dots,
-.pakx_flashcard_block .flashcard-count,
-.pakx_flashcard_block .flashcard-next {
+.pakx_flashcard_block .flashcard-dots {
     display: none;
+}
+
+/* ── Design tokens ─────────────────────────────────────────────────────── */
+
+.pakx_flashcard_block {
+    --fc-btn-size: 36px;
+    --fc-color-surface: #f3f3f3;
+    --fc-color-surface-hover: #e0e0e0;
+    --fc-color-text: #000000;
+    --fc-color-accent: #000000;
+    --fc-color-disabled: #a6a6a6;
+    --fc-color-done: #5c5c5c;
+}
+
+/* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
+
+/* Show one card at a time, full-width */
+.fc-paged .flashcard_wrapper {
+    max-width: 100%;
+    margin: 0;
+}
+.fc-paged .flashcard_wrapper .flip {
+    display: none;
+    width: 100%;
+}
+.fc-paged .flashcard_wrapper .flip.flashcard-current {
+    display: block;
+}
+
+/* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full).
+   !important overrides .flip.small and .flip.medium base rules. */
+.fc-paged .flip .card,
+.fc-paged .flip.small .card,
+.fc-paged .flip.medium .card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 360px !important;
+    min-height: 360px !important;
+    max-height: 360px !important;
+}
+
+/* Paged mode: center card face content properly.
+   overflow: hidden prevents face-level scroll; the inner > div carries overflow-y: auto */
+.fc-paged .flip .card .front,
+.fc-paged .flip .card .back {
+    align-items: center;
+    padding: 24px;
+    gap: 12px;
+    overflow: hidden;
+}
+/* Content div grows to fill space and centers the image */
+.fc-paged .flip .card .front > div,
+.fc-paged .flip .card .back > div {
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow-y: auto;
+}
+/* Image fills the card, centered */
+.fc-paged .flip .card img {
+    max-height: 100% !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    margin: 0 !important;
+    display: block;
+}
+
+/* Show dots */
+.fc-paged .flashcard-dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ── Navigation bar ────────────────────────────────────────────────────── */
+
+.fc-nav {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 460px;
+    margin: 12px auto 0;
+    padding: 0 4px;
+    gap: 8px;
+}
+.fc-paged .fc-nav {
+    display: flex;
+}
+
+/* Prev / Next buttons */
+.fc-btn-prev,
+.fc-btn-next {
+    flex: none;
+    width: var(--fc-btn-size);
+    height: var(--fc-btn-size);
+    min-width: var(--fc-btn-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fc-color-surface);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--fc-color-text);
+    transition: background 120ms cubic-bezier(0.4, 0, 0.2, 1), color 120ms cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.fc-btn-prev:focus:not(:focus-visible),
+.fc-btn-next:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+.fc-btn-prev:focus-visible,
+.fc-btn-next:focus-visible {
+    outline: 2px solid var(--fc-color-accent);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+.fc-btn-prev:not(:disabled):hover,
+.fc-btn-next:not(:disabled):hover {
+    background: var(--fc-color-surface-hover);
+}
+
+/* Prev disabled (first card) */
+.fc-btn-prev:disabled {
+    color: var(--fc-color-disabled);
+    cursor: not-allowed;
+}
+
+/* Next disabled (last card) */
+.fc-btn-next:disabled {
+    color: var(--fc-color-disabled);
+    cursor: not-allowed;
+}
+
+/* Next locked — card not yet flipped */
+.fc-btn-next.fc-locked {
+    color: var(--fc-color-disabled);
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* ── Dot indicators ────────────────────────────────────────────────────── */
+
+.fc-paged .flashcard-dots li {
+    display: flex;
+    align-items: center;
+}
+.fc-paged .flashcard-dots .fc-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--fc-color-disabled);
+    display: inline-block;
+    transition: background 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fc-paged .flashcard-dots .fc-dot.active,
+.fc-paged .flashcard-dots .fc-dot[aria-current="step"] {
+    background: var(--fc-color-accent);
+}
+.fc-paged .flashcard-dots .fc-dot.done:not(.active) {
+    background: var(--fc-color-done);
+}
+
+/* Visually-hidden live region that announces card position to screen readers. */
+.fc-card-count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
 
 .hide {

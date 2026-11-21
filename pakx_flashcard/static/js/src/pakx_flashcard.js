@@ -3,146 +3,249 @@ function PakXFlashcardXBlock(runtime, element, params) {
     var _PakXFlashcardXBlock = this;
 
     _PakXFlashcardXBlock.URL = {
-        SUBMIT_GRADE: runtime.handlerUrl(element, 'submit_grade')
-    }
+        SUBMIT_GRADE: runtime.handlerUrl(element, 'submit_grade'),
+        MARK_ALL_SEEN: runtime.handlerUrl(element, 'mark_all_seen')
+    };
 
     _PakXFlashcardXBlock.SELECTOR = {
         FLIP: '.flip',
         CARD: '.card',
         FRONT: '.front',
         BACK: '.back',
-    }
+    };
 
     $(function ($) {
-        /* Here's where you'd do things on page load. */
+        var $wrapper = $('.flashcard_wrapper', element);
+        var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
+        var $lead = $('.flashcard-lead', element);
+        var blockLead = $lead.text();
+
+        // Overridden in multi-card setup to track flipped state.
+        var onCardFlipped = function() {};
+        // In multi-card mode submitGrades is deferred until all cards are flipped.
+        var _submitGradeOnFlip = true;
+
+        // Origin shared by both single-card and multi-card paths.
+        var appOrigin = PakXFlashcardXBlock.appOrigin();
+        var _postToApp = function(message) {
+            if (appOrigin) { window.parent.postMessage(message, appOrigin); }
+        };
+
+        var showLead = function(index) {
+            var cardLead = $cards.eq(index).attr('data-lead');
+            var text = cardLead === undefined ? blockLead : cardLead.trim();
+            $lead.text(text).prop('hidden', !text);
+        };
+
         function flipCardClickHandler(cardItem) {
-            cardItem.find(_PakXFlashcardXBlock.SELECTOR.CARD).toggleClass('flipped');
-            if (cardItem.find(_PakXFlashcardXBlock.SELECTOR.CARD).hasClass('flipped')) {
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).focus();
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, "tabindex": '0'});
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, "tabindex": '-1'});
-            } else {
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': false, 'aria-hidden': true, "tabindex": '-1'});
-                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': true, 'aria-hidden': false, "tabindex": '0'});
-            }
+            var $card = cardItem.find(_PakXFlashcardXBlock.SELECTOR.CARD);
+            if ($card.hasClass('flipped')) { return false; }  // one-way only
+            $card.addClass('flipped');
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).focus();
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+            cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+            onCardFlipped($cards.index(cardItem));
+            return true;
         }
 
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function(){
-            flipCardClickHandler($(this));
-            _PakXFlashcardXBlock.submitGrades(1);
-        });
-
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keypress(function(e){
-            if (e.type === 'keypress' && e.keyCode === 13) {
-                flipCardClickHandler($(this));
-                _PakXFlashcardXBlock.submitGrades(1);
-                $(this).attr('aria-expanded', function (i, attr) {
-                    return attr === 'true' ? 'false' : 'true'
+        // Single-card: grade + plugin.completed + mark_all_seen after XHR succeeds.
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
+            if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
+                _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                    _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                    $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
                 });
             }
         });
 
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name)
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keydown(function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
+                    _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                        _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                        $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
+                    });
+                }
+            }
+        });
+
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).addClass(params.class_name);
 
         // Say how to turn each face. The hint repeats what the button role
         // already tells screen readers, so it is hidden from them.
         function addFaceText(selector, hint) {
-            $(selector, element).each(function () {
-                $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
+            $(selector, element).each(function() {
+                if (!$(this).find('.flashcard-hint').length) {
+                    $(this).append($('<span class="flashcard-hint" aria-hidden="true"></span>').text(hint));
+                }
             });
         }
         addFaceText(_PakXFlashcardXBlock.SELECTOR.FRONT, params.text.front_hint);
         addFaceText(_PakXFlashcardXBlock.SELECTOR.BACK, params.text.back_hint);
 
-        // The parts to show one card at a time: page dots, a "Card 2 of 6"
-        // line for screen readers and a Next card button. The block's CSS
-        // hides them all and shows every card; a theme that pages the cards
-        // shows them and hides each .flip but .flashcard-current.
-        //
-        // In the Uber Learn app, Next card is the app's footer button instead:
-        // the block posts plugin.footerAction with the label until the last
-        // card, then null to hand the button back to Continue. The app answers
-        // uber.footerActionAccepted, which hides the block's own button for
-        // good, and uber.footerActionClicked on each tap.
-        // The messages carry no block id, so the app has one footer per unit:
-        // content rule, at most one multi-card flashcard per unit. Two would
-        // both turn on one tap, and the first to finish hands back Continue.
-        var $wrapper = $('.flashcard_wrapper', element);
-        var $cards = $(_PakXFlashcardXBlock.SELECTOR.FLIP, element);
-
-        // A card's data-lead attribute replaces the block's lead text while
-        // that card is showing; an empty one shows no lead for it.
-        var $lead = $('.flashcard-lead', element);
-        var blockLead = $lead.text();
-        var showLead = function (index) {
-            var cardLead = $cards.eq(index).attr('data-lead');
-            var text = cardLead === undefined ? blockLead : cardLead.trim();
-            $lead.text(text).prop('hidden', !text);
-        };
         showLead(0);
-        if ($cards.length > 1) {
-            var $dots = $('<div class="flashcard-dots" aria-hidden="true"></div>');
-            var $count = $('<p class="flashcard-count" aria-live="polite"></p>');
-            var $next = $('<button type="button" class="flashcard-next"></button>').text(params.text.next);
-            var current = 0;
-            var appOrigin = PakXFlashcardXBlock.appOrigin();
-            var appHasNext = false;
-            var showCard = function (index) {
-                var isLast = index === $cards.length - 1;
-                current = index;
-                showLead(index);
-                $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
-                $dots.children().each(function (i) {
-                    $(this).toggleClass('flashcard-dot-done', i < index)
-                        .toggleClass('flashcard-dot-current', i === index);
+
+        // Single-card revisit restore: show the back face without animation.
+        if ($cards.length === 1 && params.completed) {
+            var $cardEl = $cards.first().find(_PakXFlashcardXBlock.SELECTOR.CARD);
+            $cardEl[0].style.transition = 'none';
+            $cardEl.addClass('flipped');
+            $cards.first().find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+            $cards.first().find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    $cardEl[0].style.transition = '';
                 });
-                $count.text(params.text.count
-                    .replace('{current}', index + 1)
-                    .replace('{total}', $cards.length));
-                $next.prop('hidden', isLast || appHasNext);
-                if (appOrigin) {
-                    window.parent.postMessage({
-                        type: 'plugin.footerAction',
-                        payload: isLast ? null : {label: params.text.next}
-                    }, appOrigin);
+            });
+        }
+
+        // ── Multi-card navigation ─────────────────────────────────────────────
+        // Shows one card at a time, with prev/next buttons and dot indicators.
+        // Next is locked until the current card is flipped. plugin.completed
+        // fires once every card has been seen (flipped at least once).
+        if ($cards.length > 1) {
+            var current = 0;
+            var flipped = new Set();
+            // Don't submit grade on individual flips; defer to _checkComplete.
+            _submitGradeOnFlip = false;
+            // Activate paged layout.
+            $(element).addClass('fc-paged');
+
+            var $btnPrev = $('.fc-btn-prev', element);
+            var $btnNext = $('.fc-btn-next', element);
+            var $dots = $('.flashcard-dots', element);
+            var cardLabel = (params.text && params.text.card_label) ? params.text.card_label : 'Card';
+            var ofLabel   = (params.text && params.text.of_label)   ? params.text.of_label   : 'of';
+
+            $btnPrev.attr('aria-label', params.text.prev || 'Previous card');
+            $btnNext.attr('aria-label', params.text.next || 'Next card');
+
+            // Visually-hidden live region announces card position to screen readers.
+            var $liveCount = $('<span class="fc-card-count"></span>')
+                .attr({'aria-live': 'polite', 'aria-atomic': 'true'});
+            $(element).append($liveCount);
+
+            // Build one dot per card (ol > li > span).
+            // Dots are progress indicators, not navigation — hidden from AT and
+            // keyboard focus so screen readers only hear the card count from the
+            // aria-live region.
+            $cards.each(function() {
+                var $dot = $('<span class="fc-dot"></span>').attr('aria-hidden', 'true');
+                $dots.append($('<li></li>').append($dot));
+            });
+
+            // Fire plugin.completed once every card has been flipped at least once.
+            // plugin.completed and mark_all_seen run after submitGrades XHR succeeds
+            // so the app's completion poll finds the grade already saved.
+            var _completedSent = params.completed || false;
+            var _checkComplete = function() {
+                if (_completedSent || flipped.size < $cards.length) { return; }
+                _completedSent = true;
+                _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                    _postToApp({ type: 'plugin.completed', payload: { correct: true } });
+                    $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({})).fail(function() {
+                        // Persist failure is non-fatal: grade and plugin.completed already sent.
+                        // On next load params.completed will be false and revisit re-animates cards.
+                    });
+                });
+            };
+
+            // If previously completed, restore all cards to their flipped state.
+            // Transition is disabled during restore so no flip animation runs on load.
+            if (params.completed) {
+                $cards.each(function(i) {
+                    flipped.add(i);
+                    var $card = $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD);
+                    $card[0].style.transition = 'none';
+                    $card.addClass('flipped');
+                    $(this).find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+                    $(this).find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+                });
+                // Re-enable transitions after two frames so they work for future flips
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        $cards.each(function() {
+                            $(this).find(_PakXFlashcardXBlock.SELECTOR.CARD)[0].style.transition = '';
+                        });
+                    });
+                });
+            }
+
+            // Lock or unlock the next button for the given card index.
+            var _applyNextLock = function(index) {
+                var isLast = index === $cards.length - 1;
+                var isFlipped = flipped.has(index);
+                if (isLast) {
+                    $btnNext.prop('disabled', true).removeClass('fc-locked').removeAttr('aria-disabled');
+                } else if (isFlipped) {
+                    $btnNext.prop('disabled', false).removeClass('fc-locked').removeAttr('aria-disabled');
+                } else {
+                    // Clickable but visually locked — mirrors microlearning kc-locked.
+                    $btnNext.prop('disabled', false).addClass('fc-locked').attr('aria-disabled', 'true');
                 }
             };
-            var showNextCard = function (event) {
+
+            var showCard = function(index) {
+                current = index;
+                showLead(index);
+
+                $cards.removeClass('flashcard-current').eq(index).addClass('flashcard-current');
+
+                // Dots: current = active + aria-current, flipped-but-not-current = done.
+                $dots.find('.fc-dot').each(function(i) {
+                    var isActive = i === index;
+                    var isDone = flipped.has(i) && !isActive;
+                    $(this).toggleClass('active', isActive).toggleClass('done', isDone);
+                    if (isActive) {
+                        $(this).attr('aria-current', 'step');
+                    } else {
+                        $(this).removeAttr('aria-current');
+                    }
+                });
+
+                // Update live region so screen readers announce card position on navigation.
+                $liveCount.text(cardLabel + ' ' + (index + 1) + ' ' + ofLabel + ' ' + $cards.length);
+
+                $btnPrev.prop('disabled', index === 0);
+                _applyNextLock(index);
+            };
+
+            var showNextCard = function(event) {
+                // Blocked until the current card has been flipped at least once.
+                if (!flipped.has(current)) { return; }
                 if (current < $cards.length - 1) {
                     showCard(current + 1);
-                    // Move focus for screen readers; the browser draws a ring
-                    // here because this focus() targets a different element
-                    // than the one just clicked, so suppress it for a pointer
-                    // click (event.detail > 0) or the app's footer tap (no
-                    // event). A keyboard activation (detail === 0, e.g. Enter
-                    // on the Next card button) keeps its ring: WCAG 2.4.7.
                     var $front = $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
+                    // Suppress the focus ring on pointer/app-tap navigation;
+                    // keep it for keyboard (event.detail === 0) per WCAG 2.4.7.
                     if (!event || event.detail > 0) {
                         $front.addClass('flashcard-no-focus-ring')
-                            .one('blur', function () { $(this).removeClass('flashcard-no-focus-ring'); });
+                            .one('blur', function() { $(this).removeClass('flashcard-no-focus-ring'); });
                     }
                     $front.focus();
                 }
             };
-            $cards.each(function () {
-                $dots.append('<span class="flashcard-dot"></span>');
-            });
-            $wrapper.after($dots, $count, $next);
-            $next.click(showNextCard);
-            if (appOrigin) {
-                window.addEventListener('message', function (event) {
-                    if (event.source !== window.parent || event.origin !== appOrigin || !event.data) {
-                        return;
-                    }
-                    if (event.data.type === 'uber.footerActionAccepted') {
-                        appHasNext = true;
-                        $next.prop('hidden', true);
-                    } else if (event.data.type === 'uber.footerActionClicked') {
-                        showNextCard();
-                    }
-                });
-            }
+
+            var showPrevCard = function() {
+                if (current > 0) {
+                    showCard(current - 1);
+                    $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+                }
+            };
+
+            // Called by flipCardClickHandler after each flip.
+            onCardFlipped = function(index) {
+                flipped.add(index);
+                // Update the dot for the flipped card immediately.
+                $dots.find('.fc-dot').eq(index).toggleClass('done', index !== current);
+                _applyNextLock(current);
+                _checkComplete();
+            };
+
+            $btnPrev.click(showPrevCard);
+            $btnNext.click(showNextCard);
+
             showCard(0);
         }
     }(jQuery));
@@ -150,7 +253,7 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
 // Origin of the page embedding this block (the Uber Learn app), or null when
 // the block is not in an iframe.
-PakXFlashcardXBlock.appOrigin = function () {
+PakXFlashcardXBlock.appOrigin = function() {
     if (window.parent === window || !document.referrer) {
         return null;
     }
@@ -162,10 +265,10 @@ PakXFlashcardXBlock.appOrigin = function () {
 };
 
 PakXFlashcardXBlock.prototype.submitGrades = function(grade) {
-   var _PakXFlashcardXBlock = this;
-   $.post(_PakXFlashcardXBlock.URL.SUBMIT_GRADE, JSON.stringify({'value': grade})).done(function(response) {
-      if (response.result === 'success') {
-        // FOR NOW NOTHING TO SHOW HERE
-      }
-  });
-}
+    var _PakXFlashcardXBlock = this;
+    return $.post(_PakXFlashcardXBlock.URL.SUBMIT_GRADE, JSON.stringify({'value': grade})).done(function(response) {
+        if (response.result === 'success') {
+            // FOR NOW NOTHING TO SHOW HERE
+        }
+    });
+};
