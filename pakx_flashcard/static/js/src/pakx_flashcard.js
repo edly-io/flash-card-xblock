@@ -57,26 +57,24 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         // Single-card: grade + plugin.completed + mark_all_seen on the FIRST flip-to-back only.
         var _singleCardGraded = params.completed || false;
-        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
-            if (flipCardClickHandler($(this)) && _submitGradeOnFlip && !_singleCardGraded) {
+        var onFlipInput = function(cardItem) {
+            if (flipCardClickHandler(cardItem) && _submitGradeOnFlip && !_singleCardGraded) {
                 _singleCardGraded = true;
                 _PakXFlashcardXBlock.submitGrades(1).done(function() {
                     _postToApp({ type: 'plugin.completed', payload: { correct: true } });
                     $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
                 });
             }
+        };
+
+        $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
+            onFlipInput($(this));
         });
 
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keydown(function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                if (flipCardClickHandler($(this)) && _submitGradeOnFlip && !_singleCardGraded) {
-                    _singleCardGraded = true;
-                    _PakXFlashcardXBlock.submitGrades(1).done(function() {
-                        _postToApp({ type: 'plugin.completed', payload: { correct: true } });
-                        $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
-                    });
-                }
+                onFlipInput($(this));
             }
         });
 
@@ -182,8 +180,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 });
             }
 
-            // Reset a hidden card to its front face without animation.
-            // Called before hiding it so the user sees the front when they return.
+            // Reset a card to its front face so the user sees the front when they return.
+            // Called once the card is hidden (display: none), so no flip animation runs.
             var resetCardToFront = function($cardEl) {
                 var $card = $cardEl.find(_PakXFlashcardXBlock.SELECTOR.CARD);
                 if ($card.hasClass('flipped')) {
@@ -232,32 +230,35 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 _applyNextLock(index);
             };
 
-            // Card-to-card slide transition (320ms animation, 400ms cleanup timeout).
-            // Old card has no exit animation — matches Uber Learn design spec.
+            // Card-to-card slide transition. The old card has no exit animation
+            // (Uber Learn design spec). Cleanup runs after the 320ms CSS animation.
+            var NAV_CLEANUP_MS = 400;
             var _transitioning = false;
 
-            var _navigateTo = function(nextIndex, enterCls, applyFocusRing, event) {
+            var _navigateTo = function(nextIndex, enterCls, suppressPointerFocusRing, event) {
                 if (_transitioning) { return; }
                 _transitioning = true;
                 var prevIndex = current;
+                var $next = $cards.eq(nextIndex);
                 // Advance state: dots, buttons, live region, flashcard-current on new card.
                 showCard(nextIndex);
                 // Start directional enter animation on the incoming card.
-                $cards.eq(nextIndex).addClass(enterCls);
-                // Focus management.
-                var $front = $cards.eq(nextIndex).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
-                // Suppress focus ring on pointer navigation; keep it for keyboard (event.detail===0).
-                if (applyFocusRing && (!event || event.detail > 0)) {
-                    $front.addClass('flashcard-no-focus-ring')
+                $next.addClass(enterCls);
+                // Focus the visible face: a card restored as completed still shows its back.
+                var $face = $next.find($next.find(_PakXFlashcardXBlock.SELECTOR.CARD).hasClass('flipped')
+                    ? _PakXFlashcardXBlock.SELECTOR.BACK : _PakXFlashcardXBlock.SELECTOR.FRONT);
+                // Suppress the focus ring on pointer/app-tap navigation;
+                // keep it for keyboard (event.detail === 0) per WCAG 2.4.7.
+                if (suppressPointerFocusRing && (!event || event.detail > 0)) {
+                    $face.addClass('flashcard-no-focus-ring')
                         .one('blur', function() { $(this).removeClass('flashcard-no-focus-ring'); });
                 }
-                $front.focus();
-                // 400ms > 320ms animation so cleanup runs after animation finishes.
+                $face.focus();
                 setTimeout(function() {
                     resetCardToFront($cards.eq(prevIndex));
-                    $cards.eq(nextIndex).removeClass(enterCls);
+                    $next.removeClass(enterCls);
                     _transitioning = false;
-                }, 400);
+                }, NAV_CLEANUP_MS);
             };
 
             var showNextCard = function(event) {

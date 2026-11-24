@@ -64,9 +64,8 @@
 .card div[aria-hidden="true"] > div {
     display: none;
 }
-/* flashcard-hint is intentionally NOT hidden via aria-hidden:
-   the face's own backface-visibility:hidden already hides it in sync with the
-   3D flip transition, avoiding the visual gap that display:none would cause. */
+/* The hint stays displayed on both faces: backface-visibility hides it in sync
+   with the 3D flip, so it doesn't vanish before the face turns away. */
 
 .card div span {
     display: table-cell;
@@ -169,8 +168,6 @@
 .card .back.flashcard-no-focus-ring {
     outline: none !important;
 }
-/* Back hint is visible when the back face is showing (two-way flip). */
-
 /* "Turn over" at the bottom of each face */
 .card .front .flashcard-hint,
 .card .back .flashcard-hint {
