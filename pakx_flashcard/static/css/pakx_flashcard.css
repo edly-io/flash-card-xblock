@@ -169,14 +169,7 @@
 .card .back.flashcard-no-focus-ring {
     outline: none !important;
 }
-/* Hide "Turn over" on the back once the card is flipped (one-way flip) */
-.card.flipped .back .flashcard-hint {
-    display: none;
-}
-/* Flipped card is no longer interactive */
-.card.flipped {
-    cursor: default;
-}
+/* Back hint is visible when the back face is showing (two-way flip). */
 
 /* "Turn over" at the bottom of each face */
 .card .front .flashcard-hint,
@@ -245,6 +238,11 @@
 }
 .fc-paged .flashcard_wrapper .flip.flashcard-current {
     display: block;
+    animation: fc-card-enter 180ms ease both;
+}
+@keyframes fc-card-enter {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 /* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full).
@@ -438,6 +436,9 @@
 @media (prefers-reduced-motion: reduce) {
     .flip .card {
         transition: none;
+    }
+    .fc-paged .flashcard_wrapper .flip.flashcard-current {
+        animation: none;
     }
 }
 /* Keep an empty lead hidden even where a theme shows the lead */

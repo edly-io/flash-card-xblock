@@ -39,7 +39,14 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
         function flipCardClickHandler(cardItem) {
             var $card = cardItem.find(_PakXFlashcardXBlock.SELECTOR.CARD);
-            if ($card.hasClass('flipped')) { return false; }  // one-way only
+            if ($card.hasClass('flipped')) {
+                // Flip back to front so the user can re-read the question.
+                $card.removeClass('flipped');
+                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+                cardItem.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+                cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+                return false; // Don't re-submit grade on flip-back.
+            }
             $card.addClass('flipped');
             cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).focus();
             cardItem.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
@@ -48,9 +55,11 @@ function PakXFlashcardXBlock(runtime, element, params) {
             return true;
         }
 
-        // Single-card: grade + plugin.completed + mark_all_seen after XHR succeeds.
+        // Single-card: grade + plugin.completed + mark_all_seen on the FIRST flip-to-back only.
+        var _singleCardGraded = params.completed || false;
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).click(function() {
-            if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
+            if (flipCardClickHandler($(this)) && _submitGradeOnFlip && !_singleCardGraded) {
+                _singleCardGraded = true;
                 _PakXFlashcardXBlock.submitGrades(1).done(function() {
                     _postToApp({ type: 'plugin.completed', payload: { correct: true } });
                     $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
@@ -61,7 +70,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
         $(_PakXFlashcardXBlock.SELECTOR.FLIP, element).keydown(function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                if (flipCardClickHandler($(this)) && _submitGradeOnFlip) {
+                if (flipCardClickHandler($(this)) && _submitGradeOnFlip && !_singleCardGraded) {
+                    _singleCardGraded = true;
                     _PakXFlashcardXBlock.submitGrades(1).done(function() {
                         _postToApp({ type: 'plugin.completed', payload: { correct: true } });
                         $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
@@ -172,6 +182,17 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 });
             }
 
+            // Reset a hidden card to its front face without animation.
+            // Called before hiding it so the user sees the front when they return.
+            var resetCardToFront = function($cardEl) {
+                var $card = $cardEl.find(_PakXFlashcardXBlock.SELECTOR.CARD);
+                if ($card.hasClass('flipped')) {
+                    $card.removeClass('flipped');
+                    $cardEl.find(_PakXFlashcardXBlock.SELECTOR.FRONT).attr({'aria-expanded': true, 'aria-hidden': false, 'tabindex': '0'});
+                    $cardEl.find(_PakXFlashcardXBlock.SELECTOR.BACK).attr({'aria-expanded': false, 'aria-hidden': true, 'tabindex': '-1'});
+                }
+            };
+
             // Lock or unlock the next button for the given card index.
             var _applyNextLock = function(index) {
                 var isLast = index === $cards.length - 1;
@@ -215,7 +236,10 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 // Blocked until the current card has been flipped at least once.
                 if (!flipped.has(current)) { return; }
                 if (current < $cards.length - 1) {
+                    var prevIndex = current;
                     showCard(current + 1);
+                    // Reset the card we just left so it shows its front face next time.
+                    resetCardToFront($cards.eq(prevIndex));
                     var $front = $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
                     // Suppress the focus ring on pointer/app-tap navigation;
                     // keep it for keyboard (event.detail === 0) per WCAG 2.4.7.
@@ -229,7 +253,10 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
             var showPrevCard = function() {
                 if (current > 0) {
+                    var prevIndex = current;
                     showCard(current - 1);
+                    // Reset the card we just left so it shows its front face next time.
+                    resetCardToFront($cards.eq(prevIndex));
                     $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
                 }
             };
