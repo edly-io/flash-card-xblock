@@ -64,9 +64,9 @@
 .card div[aria-hidden="true"] > div {
     display: none;
 }
-.card div[aria-hidden="true"] .flashcard-hint {
-    display: none;
-}
+/* flashcard-hint is intentionally NOT hidden via aria-hidden:
+   the face's own backface-visibility:hidden already hides it in sync with the
+   3D flip transition, avoiding the visual gap that display:none would cause. */
 
 .card div span {
     display: table-cell;
@@ -238,11 +238,25 @@
 }
 .fc-paged .flashcard_wrapper .flip.flashcard-current {
     display: block;
-    animation: fc-card-enter 180ms ease both;
 }
-@keyframes fc-card-enter {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+
+/* ── Card-to-card navigation slide transitions ─────────────────────────── */
+/* Matches Uber Learn design system: 320ms ease-out, 40% slide + 4° tilt.
+   Only the 0% keyframe is defined — fill:both lands the card at its natural
+   position, so no 100% state is needed. Old card has no exit animation. */
+
+.fc-paged .flashcard_wrapper .flip.fc-enter-right {
+    animation: fc-slide-in-right 320ms cubic-bezier(0, 0, 0.2, 1) both;
+}
+.fc-paged .flashcard_wrapper .flip.fc-enter-left {
+    animation: fc-slide-in-left 320ms cubic-bezier(0, 0, 0.2, 1) both;
+}
+
+@keyframes fc-slide-in-right {
+    0% { transform: translateX(40%) rotate(4deg); opacity: 0; }
+}
+@keyframes fc-slide-in-left {
+    0% { transform: translateX(-40%) rotate(-4deg); opacity: 0; }
 }
 
 /* Card dimensions: 360px tall, full-width (matches Figma h-[360px] w-full).
@@ -434,10 +448,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .flip .card {
-        transition: none;
-    }
-    .fc-paged .flashcard_wrapper .flip.flashcard-current {
+    .flip .card { transition: none; }
+    .fc-paged .flashcard_wrapper .flip.fc-enter-right,
+    .fc-paged .flashcard_wrapper .flip.fc-enter-left {
         animation: none;
     }
 }

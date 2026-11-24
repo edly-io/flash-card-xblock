@@ -232,32 +232,45 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 _applyNextLock(index);
             };
 
+            // Card-to-card slide transition (320ms animation, 400ms cleanup timeout).
+            // Old card has no exit animation — matches Uber Learn design spec.
+            var _transitioning = false;
+
+            var _navigateTo = function(nextIndex, enterCls, applyFocusRing, event) {
+                if (_transitioning) { return; }
+                _transitioning = true;
+                var prevIndex = current;
+                // Advance state: dots, buttons, live region, flashcard-current on new card.
+                showCard(nextIndex);
+                // Start directional enter animation on the incoming card.
+                $cards.eq(nextIndex).addClass(enterCls);
+                // Focus management.
+                var $front = $cards.eq(nextIndex).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
+                // Suppress focus ring on pointer navigation; keep it for keyboard (event.detail===0).
+                if (applyFocusRing && (!event || event.detail > 0)) {
+                    $front.addClass('flashcard-no-focus-ring')
+                        .one('blur', function() { $(this).removeClass('flashcard-no-focus-ring'); });
+                }
+                $front.focus();
+                // 400ms > 320ms animation so cleanup runs after animation finishes.
+                setTimeout(function() {
+                    resetCardToFront($cards.eq(prevIndex));
+                    $cards.eq(nextIndex).removeClass(enterCls);
+                    _transitioning = false;
+                }, 400);
+            };
+
             var showNextCard = function(event) {
                 // Blocked until the current card has been flipped at least once.
                 if (!flipped.has(current)) { return; }
                 if (current < $cards.length - 1) {
-                    var prevIndex = current;
-                    showCard(current + 1);
-                    // Reset the card we just left so it shows its front face next time.
-                    resetCardToFront($cards.eq(prevIndex));
-                    var $front = $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT);
-                    // Suppress the focus ring on pointer/app-tap navigation;
-                    // keep it for keyboard (event.detail === 0) per WCAG 2.4.7.
-                    if (!event || event.detail > 0) {
-                        $front.addClass('flashcard-no-focus-ring')
-                            .one('blur', function() { $(this).removeClass('flashcard-no-focus-ring'); });
-                    }
-                    $front.focus();
+                    _navigateTo(current + 1, 'fc-enter-right', true, event);
                 }
             };
 
             var showPrevCard = function() {
                 if (current > 0) {
-                    var prevIndex = current;
-                    showCard(current - 1);
-                    // Reset the card we just left so it shows its front face next time.
-                    resetCardToFront($cards.eq(prevIndex));
-                    $cards.eq(current).find(_PakXFlashcardXBlock.SELECTOR.FRONT).focus();
+                    _navigateTo(current - 1, 'fc-enter-left', false, null);
                 }
             };
 
