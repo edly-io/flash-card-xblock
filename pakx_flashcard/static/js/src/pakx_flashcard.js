@@ -232,7 +232,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
             // Card-to-card slide transition. The old card has no exit animation
             // (Uber Learn design spec). Cleanup runs after the 320ms CSS animation.
-            var NAV_CLEANUP_MS = 400;
+            // Under prefers-reduced-motion the animation is disabled, so no delay needed.
+            var NAV_CLEANUP_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 400;
             var _transitioning = false;
 
             var _navigateTo = function(nextIndex, enterCls, suppressPointerFocusRing, event) {
