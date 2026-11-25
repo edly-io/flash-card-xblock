@@ -56,13 +56,19 @@ function PakXFlashcardXBlock(runtime, element, params) {
         }
 
         // Single-card: grade + plugin.completed + mark_all_seen on the FIRST flip-to-back only.
+        // _singleCardGraded is set only after the XHR succeeds so a network failure
+        // is retryable: flip back, flip forward again.
         var _singleCardGraded = params.completed || false;
+        var _singleCardGradePending = false;
         var onFlipInput = function(cardItem) {
-            if (flipCardClickHandler(cardItem) && _submitGradeOnFlip && !_singleCardGraded) {
-                _singleCardGraded = true;
+            if (flipCardClickHandler(cardItem) && _submitGradeOnFlip && !_singleCardGraded && !_singleCardGradePending) {
+                _singleCardGradePending = true;
                 _PakXFlashcardXBlock.submitGrades(1).done(function() {
+                    _singleCardGraded = true;
                     _postToApp({ type: 'plugin.completed', payload: { correct: true } });
                     $.post(_PakXFlashcardXBlock.URL.MARK_ALL_SEEN, JSON.stringify({}));
+                }).fail(function() {
+                    _singleCardGradePending = false;
                 });
             }
         };
