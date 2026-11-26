@@ -64,9 +64,6 @@
 .card div[aria-hidden="true"] > div {
     display: none;
 }
-/* The hint stays displayed on both faces: backface-visibility hides it in sync
-   with the 3D flip, so it doesn't vanish before the face turns away. */
-
 .card div span {
     display: table-cell;
     vertical-align: middle;
@@ -168,7 +165,8 @@
 .card .back.flashcard-no-focus-ring {
     outline: none !important;
 }
-/* "Turn over" at the bottom of each face */
+/* "Turn over" at the bottom of each face. Shown on both faces (the card turns both ways);
+   backface-visibility hides it with its face during the 3D flip. */
 .card .front .flashcard-hint,
 .card .back .flashcard-hint {
     display: block;
@@ -224,12 +222,13 @@
 
 /* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
 
-/* Show one card at a time, full-width; overflow:hidden clips the entering card during the
-   slide animation so it doesn't widen the page and trigger a horizontal scrollbar. */
+/* Show one card at a time, full-width. overflow-x: clip stops the entering card widening
+   the page (a horizontal scrollbar) during the slide; unlike overflow: hidden it leaves
+   the vertical axis visible, so the card's bottom shadow is not cut off. */
 .fc-paged .flashcard_wrapper {
     max-width: 100%;
     margin: 0;
-    overflow: hidden;
+    overflow-x: clip;
 }
 .fc-paged .flashcard_wrapper .flip {
     display: none;
