@@ -224,10 +224,12 @@
 
 /* ── Paged mode (fc-paged set by JS when multiple cards exist) ─────────── */
 
-/* Show one card at a time, full-width */
+/* Show one card at a time, full-width; overflow:hidden clips the entering card during the
+   slide animation so it doesn't widen the page and trigger a horizontal scrollbar. */
 .fc-paged .flashcard_wrapper {
     max-width: 100%;
     margin: 0;
+    overflow: hidden;
 }
 .fc-paged .flashcard_wrapper .flip {
     display: none;
