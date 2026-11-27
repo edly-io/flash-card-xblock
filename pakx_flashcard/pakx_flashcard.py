@@ -31,7 +31,11 @@ class PakXFlashcardXBlock(XBlock):
                           scope=Scope.content)
 
     description = String(help=_('A line under the title, saying what to do with the cards.'),
-                         default=_('Think of your answer, then turn the card over.'),
+                         default=_('Flip each card to learn more.'),
+                         scope=Scope.content)
+
+    show_title = Boolean(help=_('Whether to display the title heading above the cards.'),
+                         default=True,
                          scope=Scope.content)
 
     cards = List(help=_('List of card objects'), scope=Scope.content, default=[])
@@ -125,6 +129,7 @@ class PakXFlashcardXBlock(XBlock):
         if not isinstance(description, str):
             raise JsonHandlerError(400, _('The description must be text.'))
         self.display_name = data.get('title')
+        self.show_title = bool(data.get('show_title', True))
         self.description = description.strip()
         self.cards = data.get('cards')
         return {

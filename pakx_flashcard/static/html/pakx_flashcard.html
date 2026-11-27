@@ -1,5 +1,5 @@
 <div class="pakx_flashcard_block">
-    <h2 class="flashcard-title">{{ self.display_name }}</h2>
+    {% if self.show_title %}<h2 class="flashcard-title">{{ self.display_name }}</h2>{% endif %}
     <p class="flashcard-lead"{% if not self.description %} hidden{% endif %}>{{ self.description }}</p>
     <div class="flashcard_wrapper">
         {% for card in self.cards %}

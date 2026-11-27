@@ -16,6 +16,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
         EDIT_FORM: USAGE_ID + '-form',
         TITLE_ID: '#edit_display_name',
         DESCRIPTION_ID: '#edit_description',
+        SHOW_TITLE_ID: '#edit_show_title',
         IMAGE_PARA: '.image-paragraph',
         PARA_IMAGE: '.paragraph-image',
         CANCEL_BUTTON: '.cancel-button',
@@ -35,6 +36,7 @@ function PakXFlashcardEditXBlock(runtime, element, params) {
     _PakXFlashcardEditXBlock.VIEW = {
         TITLE_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.TITLE_ID, element),
         DESCRIPTION_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.DESCRIPTION_ID, element),
+        SHOW_TITLE_ELEMENT: $(_PakXFlashcardEditXBlock.SELECTOR.SHOW_TITLE_ID, element),
         CANCEL_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.CANCEL_BUTTON, element),
         INPUT_TEMPLATE: $(_PakXFlashcardEditXBlock.SELECTOR.INPUT_TEMPLATE, element),
         ADD_SLIDE_BUTTON: $(_PakXFlashcardEditXBlock.SELECTOR.ADD_SLIDE_BUTTON, element),
@@ -223,7 +225,8 @@ PakXFlashcardEditXBlock.prototype.toJSON = function (form) {
     }
     var title = _PakXFlashcardEditXBlock.VIEW.TITLE_ELEMENT.val();
     var description = _PakXFlashcardEditXBlock.VIEW.DESCRIPTION_ELEMENT.val();
-    return {title: title, description: description, cards: pages}
+    var show_title = _PakXFlashcardEditXBlock.VIEW.SHOW_TITLE_ELEMENT.prop('checked');
+    return {title: title, description: description, show_title: show_title, cards: pages}
 }
 
 PakXFlashcardEditXBlock.prototype.post = function (url, payload, config = undefined) {
