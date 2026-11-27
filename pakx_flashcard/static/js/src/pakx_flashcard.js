@@ -62,8 +62,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
         }
 
         // Single-card: grade + plugin.completed + mark_all_seen on the FIRST flip-to-back only.
-        // _singleCardGraded is set only after the XHR succeeds so a network failure
-        // is retryable: flip back, flip forward again.
+        // Grade is set only after the XHR succeeds; a network failure leaves
+        // _singleCardGradePending false so the next flip-to-back retries.
         var _singleCardGraded = params.completed || false;
         var _singleCardGradePending = false;
         var onFlipInput = function(cardItem) {
@@ -155,8 +155,8 @@ function PakXFlashcardXBlock(runtime, element, params) {
 
             // Fire plugin.completed once every card has been flipped at least once.
             // plugin.completed and mark_all_seen run after submitGrades XHR succeeds
-            // so the app's completion poll finds the grade already saved. If the grade
-            // XHR fails, the next flip to a back face retries it.
+            // so the app's completion poll finds the grade already saved. On XHR
+            // failure _completedSent resets so a later flip-to-back retries the grade.
             var _completedSent = params.completed || false;
             var _checkComplete = function() {
                 if (_completedSent || flipped.size < $cards.length) { return; }
@@ -229,8 +229,9 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 _applyNextLock(index);
             };
 
-            // Card-to-card slide transition. The old card has no exit animation
-            // (Uber Learn design spec). Cleanup runs after the 320ms CSS animation.
+            // Card-to-card enter transition (the block's fade, or a theme's slide
+            // hooked on fc-enter-right/left). The old card has no exit animation.
+            // Cleanup runs after the longest of these (the theme's 320ms slide).
             // Under prefers-reduced-motion the animation is disabled, so no delay needed.
             var NAV_CLEANUP_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 400;
             var _transitioning = false;
@@ -271,9 +272,9 @@ function PakXFlashcardXBlock(runtime, element, params) {
                 }
             };
 
-            var showPrevCard = function() {
+            var showPrevCard = function(event) {
                 if (current > 0) {
-                    _navigateTo(current - 1, 'fc-enter-left', false, null);
+                    _navigateTo(current - 1, 'fc-enter-left', true, event);
                 }
             };
 
